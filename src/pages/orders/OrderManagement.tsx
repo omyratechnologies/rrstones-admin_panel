@@ -36,10 +36,14 @@ export function OrderManagement() {
   // Fetch orders
   const { data: ordersResponse, isLoading: ordersLoading } = useQuery({
     queryKey: ['orders', statusFilter],
-    queryFn: () => orderApi.getOrders({ status: statusFilter === 'all' ? undefined : statusFilter }),
+    queryFn: () => orderApi.getAllOrders({ 
+      status: statusFilter === 'all' ? undefined : statusFilter,
+      page: 1,
+      limit: 20
+    }),
   });
 
-  const orders = ordersResponse?.data || [];
+  const orders = ordersResponse?.data?.orders || [];
 
   // Mutations
   const updateOrderMutation = useMutation({

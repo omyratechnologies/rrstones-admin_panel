@@ -10,6 +10,8 @@ import { GraniteManagement } from '@/pages/granite/GraniteManagement';
 import { OrderManagement } from '@/pages/orders/OrderManagement';
 import { Analytics } from '@/pages/Analytics';
 import PermissionManagement from '@/pages/admin/PermissionManagement';
+import TierManagement from '@/pages/admin/TierManagement';
+import { SecurityPage } from '@/pages/Security';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +27,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  
+  return <DashboardLayout>{children}</DashboardLayout>;
+}
+
+function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, user } = useAuthStore();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Block customers from accessing admin routes
+  if (user?.role === 'customer') {
+    return <Navigate to="/" replace />;
   }
   
   return <DashboardLayout>{children}</DashboardLayout>;
@@ -47,81 +64,81 @@ function App() {
           <Route
             path="/users"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <UsersManagement />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/granite"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <GraniteManagement />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/orders"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <OrderManagement />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/invoices"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <div>Invoices Management Page (Coming Soon)</div>
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/analytics"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <Analytics />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/tiers"
             element={
-              <ProtectedRoute>
-                <div>Tiers Management Page (Coming Soon)</div>
-              </ProtectedRoute>
+              <AdminProtectedRoute>
+                <TierManagement />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/logs"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <div>Activity Logs Page (Coming Soon)</div>
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <PermissionManagement />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/security"
             element={
-              <ProtectedRoute>
-                <div>Security Page (Coming Soon)</div>
-              </ProtectedRoute>
+              <AdminProtectedRoute>
+                <SecurityPage />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/settings"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <div>Settings Page (Coming Soon)</div>
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

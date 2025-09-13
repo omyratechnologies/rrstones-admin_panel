@@ -6,10 +6,29 @@ import type {
   DashboardStats,
   ActivityLog,
   SecurityLog,
+  Session,
   ApiResponse, 
   PaginatedResponse,
   OrderFilters 
 } from '@/types';
+
+// Custom interface for orders response structure
+interface OrdersApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    orders: Order[];
+    pagination: {
+      current: number;
+      total: number;
+      totalItems: number;
+      limit: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
+    filters: any;
+  };
+}
 
 export const orderApi = {
   // Orders
@@ -17,7 +36,7 @@ export const orderApi = {
     return apiService.get('/orders', { params: filters });
   },
 
-  getAllOrders: async (filters: OrderFilters = {}): Promise<PaginatedResponse<Order>> => {
+  getAllOrders: async (filters: OrderFilters = {}): Promise<OrdersApiResponse> => {
     return apiService.get('/orders/all', { params: filters });
   },
 
@@ -71,20 +90,36 @@ export const invoiceApi = {
 
 export const tierApi = {
   // Tiers
-  getTiers: async (): Promise<ApiResponse<Tier[]>> => {
+  getTiers: async (): Promise<ApiResponse<{ tiers: Tier[] }>> => {
     return apiService.get('/tiers');
   },
 
-  createTier: async (tierData: Omit<Tier, '_id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Tier>> => {
+  getTierStats: async (): Promise<ApiResponse<{ tiers: Tier[]; totalUsers: number }>> => {
+    return apiService.get('/tiers/stats');
+  },
+
+  getTier: async (tier: string): Promise<ApiResponse<{ tier: Tier }>> => {
+    return apiService.get(`/tiers/${tier}`);
+  },
+
+  getTierUsage: async (tier: string): Promise<ApiResponse<any>> => {
+    return apiService.get(`/tiers/${tier}/usage`);
+  },
+
+  createTier: async (tierData: Omit<Tier, '_id' | 'createdAt' | 'updatedAt' | 'userCount'>): Promise<ApiResponse<{ tier: Tier }>> => {
     return apiService.post('/tiers', tierData);
   },
 
-  updateTier: async (id: string, tierData: Partial<Tier>): Promise<ApiResponse<Tier>> => {
-    return apiService.put(`/tiers/${id}`, tierData);
+  updateTier: async (tier: string, tierData: Partial<Tier>): Promise<ApiResponse<{ tier: Tier }>> => {
+    return apiService.put(`/tiers/${tier}`, tierData);
   },
 
-  deleteTier: async (id: string): Promise<ApiResponse> => {
-    return apiService.delete(`/tiers/${id}`);
+  deleteTier: async (tier: string): Promise<ApiResponse> => {
+    return apiService.delete(`/tiers/${tier}`);
+  },
+
+  bulkUpdateUserTiers: async (updates: Array<{ userId: string; tier: string; customDiscount?: number }>): Promise<ApiResponse<any>> => {
+    return apiService.put('/tiers/bulk-update', { updates });
   },
 };
 
@@ -123,7 +158,12 @@ export const adminApi = {
 
   // Activity Logs
   getActivityLogs: async (params?: any): Promise<PaginatedResponse<ActivityLog>> => {
-    return apiService.get('/admin/activity-logs', { params });
+    // Convert "all" values to empty strings for API compatibility
+    const cleanParams = params ? {
+      ...params,
+      action: params.action === 'all' ? '' : params.action,
+    } : undefined;
+    return apiService.get('/admin/activity-logs', { params: cleanParams });
   },
 
   exportActivityLogs: async (format: 'csv' | 'excel' = 'csv'): Promise<void> => {
@@ -132,11 +172,41 @@ export const adminApi = {
 
   // Security Logs
   getSecurityLogs: async (params?: any): Promise<PaginatedResponse<SecurityLog>> => {
-    return apiService.get('/admin/security-logs', { params });
+    // Convert "all" values to empty strings for API compatibility
+    const cleanParams = params ? {
+      ...params,
+      type: params.type === 'all' ? '' : params.type,
+    } : undefined;
+    return apiService.get('/admin/security-logs', { params: cleanParams });
   },
 
   exportSecurityLogs: async (format: 'csv' | 'excel' = 'csv'): Promise<void> => {
     return apiService.downloadFile(`/admin/security-logs/export/${format}`, `security-logs.${format}`);
+  },
+
+  // Security Management
+  getSecurityOverview: async (): Promise<ApiResponse<any>> => {
+    return apiService.get('/admin/security/overview');
+  },
+
+  getActiveSessions: async (): Promise<ApiResponse<{sessions: Session[]}>> => {
+    return apiService.get('/admin/security/sessions');
+  },
+
+  terminateSession: async (sessionId: string): Promise<ApiResponse> => {
+    return apiService.delete(`/admin/security/sessions/${sessionId}`);
+  },
+
+  blockIpAddress: async (ipAddress: string): Promise<ApiResponse> => {
+    return apiService.post('/admin/security/block-ip', { ipAddress });
+  },
+
+  getSecuritySettings: async (): Promise<ApiResponse<any>> => {
+    return apiService.get('/admin/security/settings');
+  },
+
+  updateSecuritySettings: async (settings: any): Promise<ApiResponse<any>> => {
+    return apiService.put('/admin/security/settings', settings);
   },
 };
 

@@ -74,21 +74,13 @@ export default function UserPermissionDialog({ open, onOpenChange, user }: UserP
       const userPermsData = userPermissions as any;
       let permissions: string[] = [];
       
-      console.log('UserPermissionDialog - userPermissions data:', userPermsData);
-      console.log('UserPermissionDialog - user object:', user);
-      
       if (userPermsData?.data?.permissions && Array.isArray(userPermsData.data.permissions)) {
         permissions = userPermsData.data.permissions;
-        console.log('Using permissions from API response:', permissions);
       } else if (user.permissions && Array.isArray(user.permissions)) {
         permissions = user.permissions;
-        console.log('Using permissions from user object:', permissions);
-      } else {
-        console.log('No permissions found, using empty array');
       }
       
       setSelectedPermissions(permissions);
-      console.log('Set selectedPermissions to:', permissions);
     }
   }, [userPermissions, user, open]);
 

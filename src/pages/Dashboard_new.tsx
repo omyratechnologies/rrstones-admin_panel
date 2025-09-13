@@ -5,16 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { analyticsApi, orderApi } from '@/services/businessApi';
-import { BarChart3, TrendingUp, Users, Package, DollarSign, ShoppingCart, RefreshCw, Activity, Clock } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Package, DollarSign, ShoppingCart, RefreshCw, Activity, Clock, AlertCircle } from 'lucide-react';
 
 export function Dashboard() {
+  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Dashboard analytics with auto-refresh
   const { data: dashboardData, isLoading, refetch } = useQuery({
     queryKey: ['dashboard-analytics'],
     queryFn: () => analyticsApi.getDashboardAnalytics(),
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: refreshInterval,
     refetchOnWindowFocus: true,
     staleTime: 10000, // Consider data stale after 10 seconds
   });
@@ -25,6 +26,13 @@ export function Dashboard() {
     queryFn: () => orderApi.getAllOrders({ limit: 5, page: 1 }),
     refetchInterval: 15000, // Update every 15 seconds
     refetchOnWindowFocus: true,
+  });
+
+  // Sales analytics for charts
+  const { data: salesData } = useQuery({
+    queryKey: ['sales-analytics'],
+    queryFn: () => analyticsApi.getSalesAnalytics({ period: '7d' }),
+    refetchInterval: 60000, // Update every minute
   });
 
   // Update last refreshed time

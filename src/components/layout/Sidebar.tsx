@@ -20,17 +20,17 @@ import {
 import { Button } from '@/components/ui/button';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Granite Products', href: '/granite', icon: Mountain },
-  { name: 'Orders', href: '/orders', icon: ShoppingCart },
-  { name: 'Invoices', href: '/invoices', icon: FileText },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Tiers', href: '/tiers', icon: Package },
-  { name: 'Activity Logs', href: '/logs', icon: Activity },
-  { name: 'Permission Management', href: '/admin', icon: UserCog },
-  { name: 'Security', href: '/security', icon: Shield },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['customer', 'staff', 'admin', 'super_admin'] },
+  { name: 'Users', href: '/users', icon: Users, roles: ['admin', 'super_admin'] },
+  { name: 'Granite Products', href: '/granite', icon: Mountain, roles: ['staff', 'admin', 'super_admin'] },
+  { name: 'Orders', href: '/orders', icon: ShoppingCart, roles: ['staff', 'admin', 'super_admin'] },
+//   { name: 'Invoices', href: '/invoices', icon: FileText, roles: ['staff', 'admin', 'super_admin'] },
+//   { name: 'Analytics', href: '/analytics', icon: BarChart3, roles: ['admin', 'super_admin'] },
+  { name: 'Tiers', href: '/tiers', icon: Package, roles: ['admin', 'super_admin'] },
+//   { name: 'Activity Logs', href: '/logs', icon: Activity, roles: ['admin', 'super_admin'] },
+  { name: 'Permission Management', href: '/admin', icon: UserCog, roles: ['admin', 'super_admin'] },
+  { name: 'Security', href: '/security', icon: Shield, roles: ['admin', 'super_admin'] },
+  { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'super_admin'] },
 ];
 
 export function Sidebar() {
@@ -79,7 +79,9 @@ export function Sidebar() {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-4 py-6">
-            {navigation.map((item) => {
+            {navigation
+              .filter(item => item.roles.includes(user?.role || 'customer'))
+              .map((item) => {
               const isActive = location.pathname === item.href;
               const Icon = item.icon;
               

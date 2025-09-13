@@ -6,7 +6,7 @@ export interface User {
   phone: string;
   company?: string;
   address?: string;
-  tier: 'T1' | 'T2' | 'T3';
+  tier: string; // Changed from 'T1' | 'T2' | 'T3' to string for dynamic tiers
   customDiscount?: number;
   isActive: boolean;
   role: 'super_admin' | 'admin' | 'staff' | 'customer';
@@ -22,7 +22,7 @@ export interface CreateUserData {
   address?: string;
   password: string;
   role: 'admin' | 'staff' | 'customer';
-  tier?: 'T1' | 'T2' | 'T3';
+  tier?: string; // Changed from 'T1' | 'T2' | 'T3' to string for dynamic tiers
   customDiscount?: number;
 }
 
@@ -114,33 +114,55 @@ export interface Invoice {
 // Tier Types
 export interface Tier {
   _id: string;
-  name: 'T1' | 'T2' | 'T3';
+  tier: string; // Changed from 'T1' | 'T2' | 'T3' to string for dynamic tiers
+  discountPercent: number;
   description: string;
-  discountPercentage: number;
-  minOrderValue: number;
-  features: string[];
+  minimumOrderValue?: number;
+  benefits?: string[];
   isActive: boolean;
+  userCount?: number; // For analytics
   createdAt: string;
   updatedAt: string;
 }
 
 // Dashboard Analytics Types
 export interface DashboardStats {
-  totalUsers: number;
-  totalOrders: number;
-  totalRevenue: number;
-  pendingOrders: number;
-  recentOrders: Order[];
-  recentUsers: User[];
-  salesData: Array<{
-    date: string;
-    sales: number;
-    orders: number;
-  }>;
-  userGrowth: Array<{
-    date: string;
-    users: number;
-  }>;
+  analytics: {
+    period: string;
+    summary: {
+      revenue: {
+        current: number;
+        previous: number;
+        growth: number;
+      };
+      orders: {
+        current: number;
+        previous: number;
+        growth: number;
+      };
+      users: {
+        current: number;
+        previous: number;
+        growth: number;
+      };
+      products: number;
+      averageOrderValue: number;
+    };
+    breakdowns: {
+      orderStatus: Record<string, { count: number; revenue: number }>;
+      paymentStatus: Record<string, { count: number; revenue: number }>;
+      userTiers: Record<string, number>;
+    };
+    topProducts: Array<{
+      _id: string;
+      totalRevenue: number;
+      totalQuantity: number;
+      orderCount: number;
+      productName: string;
+      productColor: string;
+    }>;
+    recentActivity: Order[];
+  };
 }
 
 // API Response Types
@@ -204,6 +226,7 @@ export interface UserFilters {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  includeCustomers?: string; // 'true' | 'false' to control customer visibility in admin panel
 }
 
 export interface OrderFilters {
@@ -220,13 +243,12 @@ export interface OrderFilters {
 
 // Activity Log Types
 export interface ActivityLog {
-  _id: string;
-  userId: string;
-  userEmail: string;
+  id: string;
+  userId?: string;
+  user: string;
   action: string;
-  resource: string;
-  resourceId?: string;
-  details?: Record<string, any>;
+  details: string;
+  result?: string;
   ipAddress?: string;
   userAgent?: string;
   timestamp: string;
@@ -234,12 +256,31 @@ export interface ActivityLog {
 
 // Security Log Types
 export interface SecurityLog {
-  _id: string;
-  type: 'failed_login' | 'token_expired' | 'suspicious_activity' | 'access_denied';
-  userId?: string;
-  email?: string;
-  ipAddress?: string;
-  userAgent?: string;
-  details?: Record<string, any>;
+  id: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  source: string;
+  event: string;
+  details: string;
+  status: string;
   timestamp: string;
+}
+
+// Session Types
+export interface Session {
+  id: string;
+  userId: string;
+  userEmail: string;
+  device: string;
+  location: string;
+  ipAddress: string;
+  userAgent: string;
+  isActive: boolean;
+  lastActivity: string;
+  loginTime: string;
+  duration: string;
+}
+
+export interface SessionsResponse {
+  sessions: Session[];
 }

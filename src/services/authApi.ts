@@ -60,6 +60,7 @@ export const userApi = {
       ...(filters.search && { search: filters.search }),
       ...(filters.sortBy && { sortBy: filters.sortBy }),
       ...(filters.sortOrder && { sortOrder: filters.sortOrder }),
+      ...(filters.includeCustomers && { includeCustomers: filters.includeCustomers }),
     };
     return apiService.get('/users', { params });
   },

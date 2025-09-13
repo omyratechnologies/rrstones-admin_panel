@@ -24,12 +24,13 @@ export default function UserRoleManagement() {
 
   const queryClient = useQueryClient();
 
-  // Fetch users
+  // Fetch users (excluding customers by default)
   const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ['users', searchTerm, selectedRole],
     queryFn: () => userApi.getUsers({ 
       search: searchTerm || undefined, 
-      role: selectedRole !== 'all' ? selectedRole : undefined 
+      role: selectedRole !== 'all' ? selectedRole : undefined,
+      includeCustomers: 'false' // Always exclude customers from admin panel
     }),
   });
 
@@ -158,7 +159,6 @@ export default function UserRoleManagement() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="all">All Roles</option>
-                <option value="customer">Customer</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
                 <option value="super_admin">Super Admin</option>

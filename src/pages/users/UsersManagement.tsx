@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { userApi } from '../../services/api';
+import { tierApi } from '../../services/businessApi';
 import { useNotifications } from '../../hooks/useNotifications';
 import type { User, UserFilters } from '../../types';
 
@@ -36,10 +38,10 @@ export default function UsersManagement() {
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
 
-  // Query for users data - All users
+  // Query for users data - All users (including customers)
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ['users', filters],
-    queryFn: () => userApi.getUsers(filters),
+    queryKey: ['users', { ...filters, includeCustomers: 'true' }],
+    queryFn: () => userApi.getUsers({ ...filters, includeCustomers: 'true' }),
   });
 
   // Query for admin users (both admin and super_admin)
@@ -48,16 +50,22 @@ export default function UsersManagement() {
     queryFn: () => userApi.getUsers({ ...filters, role: 'admins' }),
   });
 
-  // Query for customer users
+  // Query for customer users only
   const { data: customerUsersData, isLoading: isLoadingCustomers } = useQuery({
     queryKey: ['users', 'customer', { ...filters, role: 'customer' }],
-    queryFn: () => userApi.getUsers({ ...filters, role: 'customer' }),
+    queryFn: () => userApi.getUsers({ ...filters, role: 'customer', includeCustomers: 'true' }),
   });
 
   // Query for user statistics
   const { data: statsData } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => userApi.getDashboardStats(),
+  });
+
+  // Query for available tiers
+  const { data: tiersData } = useQuery({
+    queryKey: ['tiers'],
+    queryFn: () => tierApi.getTiers(),
   });
 
   // Mutations for user operations
@@ -466,6 +474,83 @@ export default function UsersManagement() {
                   onChange={(e) => handleSearch(e.target.value)}
                   className="pl-8"
                 />
+              </div>
+            </div>
+
+            {/* Filter Dropdowns */}
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Role Filter */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Role
+                </label>
+                <Select 
+                  value={filters.role || "all_roles"} 
+                  onValueChange={(value) => setFilters(prev => ({ 
+                    ...prev, 
+                    role: value === "all_roles" ? "" : value 
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Roles" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all_roles">All Roles</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tier Filter */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Tier
+                </label>
+                <Select 
+                  value={filters.tier || "all_tiers"} 
+                  onValueChange={(value) => setFilters(prev => ({ 
+                    ...prev, 
+                    tier: value === "all_tiers" ? "" : value 
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Tiers" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all_tiers">All Tiers</SelectItem>
+                    {tiersData?.data?.tiers?.map((tier) => (
+                      <SelectItem key={tier._id} value={tier.tier}>
+                        {tier.tier} - {tier.description} ({tier.discountPercent}% discount)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Status
+                </label>
+                <Select 
+                  value={filters.isActive === undefined ? "all_status" : filters.isActive.toString()} 
+                  onValueChange={(value) => setFilters(prev => ({ 
+                    ...prev, 
+                    isActive: value === "all_status" ? undefined : value === "true" 
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all_status">All Status</SelectItem>
+                    <SelectItem value="true">Active</SelectItem>
+                    <SelectItem value="false">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

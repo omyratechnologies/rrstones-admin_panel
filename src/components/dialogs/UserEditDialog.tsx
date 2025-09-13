@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { userApi } from '../../services/api';
+import { tierApi } from '../../services/businessApi';
 import { useNotifications } from '../../hooks/useNotifications';
 import type { User } from '../../types';
 
@@ -20,7 +21,7 @@ export default function UserEditDialog({ open, onOpenChange, user }: UserEditDia
     phone: '',
     company: '',
     address: '',
-    tier: 'T3' as 'T1' | 'T2' | 'T3',
+    tier: 'T3' as string, // Changed to accept any string for dynamic tiers
     customDiscount: undefined as number | undefined,
     isActive: true,
   });
@@ -28,6 +29,12 @@ export default function UserEditDialog({ open, onOpenChange, user }: UserEditDia
 
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
+
+  // Query for available tiers
+  const { data: tiersData } = useQuery({
+    queryKey: ['tiers'],
+    queryFn: () => tierApi.getTiers(),
+  });
 
   useEffect(() => {
     if (user && open) {
@@ -164,12 +171,14 @@ export default function UserEditDialog({ open, onOpenChange, user }: UserEditDia
                 <select
                   id="tier"
                   value={formData.tier}
-                  onChange={(e) => handleInputChange('tier', e.target.value as 'T1' | 'T2' | 'T3')}
+                  onChange={(e) => handleInputChange('tier', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="T1">T1 - Premium (20% discount)</option>
-                  <option value="T2">T2 - Standard (15% discount)</option>
-                  <option value="T3">T3 - Basic (5% discount)</option>
+                  {tiersData?.data?.tiers?.map((tier) => (
+                    <option key={tier._id} value={tier.tier}>
+                      {tier.tier} - {tier.description} ({tier.discountPercent}% discount)
+                    </option>
+                  ))}
                 </select>
               </div>
 

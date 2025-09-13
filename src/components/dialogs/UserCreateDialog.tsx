@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { userApi } from '../../services/api';
+import { tierApi } from '../../services/businessApi';
 import { useNotifications } from '../../hooks/useNotifications';
 import type { CreateUserData } from '../../types';
 
@@ -30,6 +31,23 @@ export default function UserCreateDialog({ open, onOpenChange }: UserCreateDialo
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
 
+  // Query for available tiers
+  const { data: tiersData } = useQuery({
+    queryKey: ['tiers'],
+    queryFn: () => tierApi.getTiers(),
+  });
+
+  // Set default tier when tiers are loaded
+  useEffect(() => {
+    if (tiersData?.data?.tiers && tiersData.data.tiers.length > 0 && formData.tier === 'T3') {
+      // Set to the first available tier (usually T1)
+      setFormData(prev => ({
+        ...prev,
+        tier: tiersData.data!.tiers![0].tier
+      }));
+    }
+  }, [tiersData, formData.tier]);
+
   const createUserMutation = useMutation({
     mutationFn: (userData: CreateUserData) => userApi.createUser(userData),
     onSuccess: () => {
@@ -53,6 +71,7 @@ export default function UserCreateDialog({ open, onOpenChange }: UserCreateDialo
   });
 
   const resetForm = () => {
+    const defaultTier = tiersData?.data?.tiers?.[0]?.tier || 'T3';
     setFormData({
       name: '',
       email: '',
@@ -61,7 +80,7 @@ export default function UserCreateDialog({ open, onOpenChange }: UserCreateDialo
       address: '',
       password: '',
       role: 'customer',
-      tier: 'T3',
+      tier: defaultTier,
       customDiscount: undefined,
     });
     setErrors({});
@@ -182,12 +201,14 @@ export default function UserCreateDialog({ open, onOpenChange }: UserCreateDialo
                 <select
                   id="tier"
                   value={formData.tier}
-                  onChange={(e) => handleInputChange('tier', e.target.value as 'T1' | 'T2' | 'T3')}
+                  onChange={(e) => handleInputChange('tier', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="T1">T1 - Premium (20% discount)</option>
-                  <option value="T2">T2 - Standard (15% discount)</option>
-                  <option value="T3">T3 - Basic (5% discount)</option>
+                  {tiersData?.data?.tiers?.map((tier) => (
+                    <option key={tier._id} value={tier.tier}>
+                      {tier.tier} - {tier.description} ({tier.discountPercent}% discount)
+                    </option>
+                  ))}
                 </select>
               </div>
 
