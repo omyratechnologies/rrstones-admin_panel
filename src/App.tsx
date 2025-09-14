@@ -8,7 +8,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import UsersManagement from '@/pages/users/UsersManagement';
 import { GraniteManagement } from '@/pages/granite/GraniteManagement';
 import { OrderManagement } from '@/pages/orders/OrderManagement';
-import { Analytics } from '@/pages/Analytics';
+// import { Analytics } from '@/pages/Analytics';
 import PermissionManagement from '@/pages/admin/PermissionManagement';
 import TierManagement from '@/pages/admin/TierManagement';
 import { SecurityPage } from '@/pages/Security';
@@ -93,14 +93,14 @@ function App() {
               </AdminProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/analytics"
             element={
               <AdminProtectedRoute>
                 <Analytics />
               </AdminProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/tiers"
             element={
