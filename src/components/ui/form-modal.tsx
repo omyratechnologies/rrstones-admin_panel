@@ -9,7 +9,7 @@ import { ImageUpload } from './image-upload';
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'email' | 'tel' | 'url' | 'select' | 'file';
+  type: 'text' | 'textarea' | 'number' | 'email' | 'tel' | 'url' | 'select' | 'multiselect' | 'file';
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
@@ -162,11 +162,38 @@ export function FormModal({
               </option>
             ))}
           </select>
+        ) : field.type === 'multiselect' ? (
+          <div className="space-y-2">
+            <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
+              {field.options?.map(option => (
+                <label key={option.value} className="flex items-center space-x-2 py-1">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(formData[field.name]) ? formData[field.name].includes(option.value) : false}
+                    onChange={(e) => {
+                      const currentValues = Array.isArray(formData[field.name]) ? formData[field.name] : [];
+                      const newValues = e.target.checked
+                        ? [...currentValues, option.value]
+                        : currentValues.filter((v: string) => v !== option.value);
+                      handleFieldChange(field.name, newValues);
+                    }}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">{option.label}</span>
+                </label>
+              ))}
+            </div>
+            {Array.isArray(formData[field.name]) && formData[field.name].length > 0 && (
+              <div className="text-sm text-gray-600">
+                Selected: {Array.isArray(formData[field.name]) ? formData[field.name].join(', ') : formData[field.name]}
+              </div>
+            )}
+          </div>
         ) : field.type === 'file' ? (
           <ImageUpload
             value={formData[field.name]}
             onChange={(file) => handleFieldChange(field.name, file)}
-            acceptedTypes={field.accept ? field.accept.split(',') : ['image/jpeg', 'image/png', 'image/webp', 'image/gif']}
+            acceptedTypes={field.accept ? field.accept.split(',') : ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']}
             maxSize={field.maxSize || 5}
             error={hasError ? errors[field.name] : undefined}
           />

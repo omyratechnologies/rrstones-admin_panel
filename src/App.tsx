@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import UsersManagement from '@/pages/users/UsersManagement';
-import { GraniteManagement } from '@/pages/granite/GraniteManagement';
+import GraniteManagement from '@/pages/granite/GraniteManagement';
 import { OrderManagement } from '@/pages/orders/OrderManagement';
 // import { Analytics } from '@/pages/Analytics';
 import PermissionManagement from '@/pages/admin/PermissionManagement';

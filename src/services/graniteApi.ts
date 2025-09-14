@@ -31,7 +31,7 @@ export const graniteApi = {
 
   // Specific Granite Variants
   getSpecificVariants: async (): Promise<ApiResponse<SpecificGraniteVariant[]>> => {
-    return apiService.get('/granite/specific-variants');
+    return apiService.get('/granite/specific-variants?limit=1000');
   },
 
   getSpecificVariant: async (id: string): Promise<ApiResponse<SpecificGraniteVariant>> => {
@@ -115,5 +115,36 @@ export const graniteApi = {
 
   importProducts: async (file: File, onProgress?: (progress: number) => void): Promise<ApiResponse> => {
     return apiService.uploadFile('/granite/products/import', file, onProgress);
+  },
+
+  // Hierarchy validation and dependency checks
+  checkVariantDependencies: async (id: string): Promise<ApiResponse<{
+    canDelete: boolean;
+    dependencies: { specificVariants: number; products: number };
+    message: string;
+    totalDependents: number;
+  }>> => {
+    return apiService.get(`/granite/variants/${id}/dependencies`);
+  },
+
+  checkSpecificVariantDependencies: async (id: string): Promise<ApiResponse<{
+    canDelete: boolean;
+    dependencies: { products: number };
+    message: string;
+    totalDependents: number;
+  }>> => {
+    return apiService.get(`/granite/specific-variants/${id}/dependencies`);
+  },
+
+  getHierarchyInfo: async (): Promise<ApiResponse<{
+    hierarchy: Array<{
+      level: number;
+      name: string;
+      description: string;
+      canDelete: string;
+    }>;
+    rules: string[];
+  }>> => {
+    return apiService.get('/granite/hierarchy-info');
   },
 };

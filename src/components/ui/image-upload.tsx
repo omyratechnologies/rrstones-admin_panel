@@ -18,7 +18,7 @@ export function ImageUpload({
   onChange,
   className,
   maxSize = 5,
-  acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'],
   preview = true,
   label = "Upload Image",
   error
@@ -40,9 +40,21 @@ export function ImageUpload({
   };
 
   const validateFile = (file: File): string | null => {
-    if (!acceptedTypes.includes(file.type)) {
-      return `File type not supported. Please upload: ${acceptedTypes.map(type => type.split('/')[1]).join(', ')}`;
+    // Check if any accepted type is a wildcard that matches the file type
+    const isAccepted = acceptedTypes.some(acceptedType => {
+      if (acceptedType === 'image/*') {
+        return file.type.startsWith('image/');
+      }
+      return acceptedType === file.type;
+    });
+    
+    if (!isAccepted) {
+      const displayTypes = acceptedTypes.includes('image/*') 
+        ? ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'] 
+        : acceptedTypes.map(type => type.split('/')[1]);
+      return `File type not supported. Please upload: ${displayTypes.join(', ')}`;
     }
+    
     if (file.size > maxSize * 1024 * 1024) {
       return `File size too large. Maximum size: ${maxSize}MB`;
     }

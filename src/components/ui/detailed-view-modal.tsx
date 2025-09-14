@@ -103,7 +103,7 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                       alt={item.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/500x500/f3f4f6/9ca3af?text=No+Image';
+                        (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjI1MCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOWNhM2FmIj5ObyBJbWFnZTwvdGV4dD4KPHN2Zz4K';
                       }}
                     />
                     
@@ -160,7 +160,7 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                         alt={`${item.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64x64/f3f4f6/9ca3af?text=No+Image';
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzljYTNhZiI+Tm8gSW1hZ2U8L3RleHQ+Cjwvc3ZnPgo=';
                         }}
                       />
                     </button>
@@ -187,6 +187,16 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                     </p>
                   </div>
 
+                  {/* Variant relationship for specific variants */}
+                  {type === 'specificVariant' && item.variantId && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Base Variant ID</label>
+                      <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                        {item.variantId}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     {type === 'variant' && (
                       <Badge variant="secondary" className="bg-blue-100 text-blue-800">
@@ -204,7 +214,7 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                       </Badge>
                     )}
                     <Badge variant="outline" className="bg-green-50 text-green-700">
-                      ✅ Active
+                      ✅ {item.status || 'Active'}
                     </Badge>
                   </div>
                 </div>
@@ -212,52 +222,240 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
 
               {/* Product-specific details */}
               {type === 'product' && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">💰 Product Details</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-500">Base Price</span>
+                <div className="space-y-6">
+                  {/* Basic Product Info */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">� Product Classification</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Category</label>
+                        <p className="text-base font-medium">{item.category || 'N/A'}</p>
                       </div>
-                      <p className="text-xl font-bold text-green-600">
-                        ₹{item.basePrice?.toLocaleString() || '0'}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Package className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium text-gray-500">Stock</span>
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Subcategory</label>
+                        <p className="text-base font-medium">{item.subcategory || 'N/A'}</p>
                       </div>
-                      <p className="text-xl font-bold text-blue-600">
-                        {item.stock || 0} {item.unit || 'units'}
-                      </p>
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Unit Type</label>
+                        <p className="text-base font-medium">{item.unit_type || item.unit || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Status</label>
+                        <Badge variant={item.status === 'active' ? 'default' : 'secondary'}>
+                          {item.status === 'active' ? '✅' : '❌'} {item.status || 'N/A'}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
 
-                  {item.finish && item.finish.length > 0 && (
-                    <div className="mt-4">
-                      <label className="text-sm font-medium text-gray-500 block mb-2">Available Finishes</label>
-                      <div className="flex flex-wrap gap-2">
-                        {item.finish.map((finish: string, index: number) => (
-                          <Badge key={index} variant="outline">
-                            ✨ {finish}
-                          </Badge>
-                        ))}
+                  {/* Dimensions & Specifications */}
+                  {item.dimensions && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">📏 Dimensions & Specifications</h3>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Dimensions</label>
+                            <p className="text-lg font-bold text-blue-800">
+                              {item.dimensionsString || `${item.dimensions.length}"×${item.dimensions.width}"×${item.dimensions.thickness}"`}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              L: {item.dimensions.length}" × W: {item.dimensions.width}" × T: {item.dimensions.thickness}"
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Area per Piece</label>
+                            <p className="text-lg font-bold text-blue-800">
+                              {item.calculatedAreaPerPiece || item.area_per_piece || 'N/A'} sq ft
+                            </p>
+                            {item.weight_per_piece && (
+                              <>
+                                <label className="text-sm font-medium text-gray-600 block mt-2">Weight per Piece</label>
+                                <p className="text-base font-medium">{item.weight_per_piece} kg</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {item.applications && item.applications.length > 0 && (
-                    <div className="mt-4">
-                      <label className="text-sm font-medium text-gray-500 block mb-2">Applications</label>
-                      <div className="flex flex-wrap gap-2">
-                        {item.applications.map((app: string, index: number) => (
-                          <Badge key={index} variant="outline">
-                            🏗️ {app}
-                          </Badge>
-                        ))}
+                  {/* Packaging Information */}
+                  {item.packaging && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">📦 Packaging Details</h3>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Pieces per Crate</label>
+                            <p className="text-lg font-bold">{item.packaging.pieces_per_crate || 'N/A'}</p>
+                          </div>
+                          {item.packaging.pieces_per_set && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-600">Pieces per Set</label>
+                              <p className="text-lg font-bold">{item.packaging.pieces_per_set}</p>
+                            </div>
+                          )}
+                          {item.packaging.crate_weight && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-600">Crate Weight</label>
+                              <p className="text-base font-medium">{item.packaging.crate_weight} kg</p>
+                            </div>
+                          )}
+                          {item.packaging.pieces_weight && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-600">Pieces Weight</label>
+                              <p className="text-base font-medium">{item.packaging.pieces_weight} kg</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Comprehensive Pricing */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">💰 Pricing Details</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <span className="text-sm font-medium text-gray-500">Base Price</span>
+                        </div>
+                        <p className="text-xl font-bold text-green-600">
+                          {item.pricing?.currency === 'INR' ? '₹' : '$'}{(item.basePrice || item.pricing?.price_per_unit || 0).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">per {item.unit_type || item.unit || 'unit'}</p>
+                      </div>
+                      
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Package className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-gray-500">Stock</span>
+                        </div>
+                        <p className="text-xl font-bold text-blue-600">
+                          {item.stock || 0} {item.unit || 'units'}
+                        </p>
+                      </div>
+
+                      {item.pricing?.price_per_sqft && (
+                        <div className="bg-purple-50 p-3 rounded-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <DollarSign className="h-4 w-4 text-purple-600" />
+                            <span className="text-sm font-medium text-gray-500">Price per Sq Ft</span>
+                          </div>
+                          <p className="text-lg font-bold text-purple-600">
+                            {item.pricing?.currency === 'INR' ? '₹' : '$'}{item.pricing.price_per_sqft || item.effectivePricePerSqft || 0}
+                          </p>
+                        </div>
+                      )}
+
+                      {item.pricing?.price_per_piece && (
+                        <div className="bg-orange-50 p-3 rounded-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Package className="h-4 w-4 text-orange-600" />
+                            <span className="text-sm font-medium text-gray-500">Price per Piece</span>
+                          </div>
+                          <p className="text-lg font-bold text-orange-600">
+                            {item.pricing?.currency === 'INR' ? '₹' : '$'}{item.pricing.price_per_piece}
+                          </p>
+                        </div>
+                      )}
+
+                      {item.pricing?.price_per_set && (
+                        <div className="bg-teal-50 p-3 rounded-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Package className="h-4 w-4 text-teal-600" />
+                            <span className="text-sm font-medium text-gray-500">Price per Set</span>
+                          </div>
+                          <p className="text-lg font-bold text-teal-600">
+                            {item.pricing?.currency === 'INR' ? '₹' : '$'}{item.pricing.price_per_set}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-gray-500">Currency</span>
+                        </div>
+                        <p className="text-lg font-bold">
+                          {item.pricing?.currency || 'USD'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Product Features */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">✨ Product Features</h3>
+                    
+                    {item.finish && item.finish.length > 0 && (
+                      <div className="mb-4">
+                        <label className="text-sm font-medium text-gray-500 block mb-2">Available Finishes</label>
+                        <div className="flex flex-wrap gap-2">
+                          {item.finish.map((finish: string, index: number) => (
+                            <Badge key={index} variant="outline" className="bg-blue-50">
+                              ✨ {finish}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {item.applications && item.applications.length > 0 && (
+                      <div className="mb-4">
+                        <label className="text-sm font-medium text-gray-500 block mb-2">Applications</label>
+                        <div className="flex flex-wrap gap-2">
+                          {item.applications.map((app: string, index: number) => (
+                            <Badge key={index} variant="outline" className="bg-green-50">
+                              🏗️ {app.replace(/_/g, ' ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {item.special_features && item.special_features.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500 block mb-2">Special Features</label>
+                        <div className="flex flex-wrap gap-2">
+                          {item.special_features.map((feature: string, index: number) => (
+                            <Badge key={index} variant="outline" className="bg-yellow-50">
+                              ⭐ {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Variant Relationship */}
+                  {item.variantSpecificId && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">🔗 Variant Information</h3>
+                      <div className="bg-indigo-50 p-4 rounded-lg">
+                        <div className="space-y-2">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Specific Variant</label>
+                            <p className="text-lg font-bold text-indigo-800">
+                              {item.variantSpecificId.name || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Variant ID</label>
+                            <p className="text-sm font-mono bg-white px-2 py-1 rounded border">
+                              {item.variantSpecificId._id || item.variantSpecificId.id}
+                            </p>
+                          </div>
+                          {item.variantSpecificId.variantId && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-600">Base Variant ID</label>
+                              <p className="text-sm font-mono bg-white px-2 py-1 rounded border">
+                                {item.variantSpecificId.variantId}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -282,9 +480,25 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                     <Layers className="h-4 w-4 text-gray-500" />
                     <span className="text-gray-500">ID:</span>
                     <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                      {item._id}
+                      {item._id || item.id}
                     </span>
                   </div>
+                  {item.__v !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-500">Version:</span>
+                      <span className="font-medium">{item.__v}</span>
+                    </div>
+                  )}
+                  {item.meta_data && Object.keys(item.meta_data).length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-500">Metadata:</span>
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                        {JSON.stringify(item.meta_data)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
