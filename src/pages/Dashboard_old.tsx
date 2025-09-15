@@ -5,17 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { analyticsApi, orderApi } from '@/services/businessApi';
-import { BarChart3, TrendingUp, Users, Package, DollarSign, ShoppingCart, RefreshCw, Activity, Clock, AlertCircle } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Package, DollarSign, ShoppingCart, RefreshCw, Activity, Clock } from 'lucide-react';
 
 export function Dashboard() {
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Dashboard anal/. 
   const { data: dashboardData, isLoading, refetch } = useQuery({
     queryKey: ['dashboard-analytics'],
     queryFn: () => analyticsApi.getDashboardAnalytics(),
-    refetchInterval: refreshInterval,
+    refetchInterval: 30000, // 30 seconds
     refetchOnWindowFocus: true,
     staleTime: 10000, // Consider data stale after 10 seconds
   });
@@ -29,7 +28,7 @@ export function Dashboard() {
   });
 
   // Sales analytics for charts
-  const { data: salesData } = useQuery({
+  useQuery({
     queryKey: ['sales-analytics'],
     queryFn: () => analyticsApi.getSalesAnalytics({ period: '7d' }),
     refetchInterval: 60000, // Update every minute

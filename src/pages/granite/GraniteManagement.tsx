@@ -18,7 +18,7 @@ import {
 import { graniteApi } from '../../services/graniteApi';
 import { uploadPublicImage } from '../../services/uploadService';
 import type { GraniteVariant, SpecificGraniteVariant, GraniteProduct } from '../../types';
-import { FormModal } from '../../components/ui/form-modal';
+import { EnhancedFormModal } from '../../components/ui/enhanced-form-modal';
 import { ConfirmDialog } from '../../components/ui/confirm-dialog';
 import { ImportExportModal } from '../../components/ui/import-export-modal';
 import DetailedViewModal from '../../components/ui/detailed-view-modal';
@@ -786,36 +786,42 @@ export default function GraniteManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Enhanced Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
+      {/* Enhanced Header - Mobile Responsive */}
+      <div className="mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">🧱 Granite Management</h1>
-            <p className="text-gray-600 mt-1">Manage your granite variants, specific variants, and products</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🧱 Granite Management</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your granite variants, specific variants, and products</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowImportExportModal(true)}>
+          <div className="flex gap-2 sm:gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowImportExportModal(true)}
+              className="flex-1 sm:flex-none"
+            >
               <Upload className="h-4 w-4 mr-2" />
-              Import/Export
+              <span className="hidden sm:inline">Import/Export</span>
+              <span className="sm:hidden">Import</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Simple Navigation Breadcrumb */}
-      <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100">
-        <CardContent className="pt-6 pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+      {/* Mobile-Responsive Navigation Breadcrumb */}
+      <Card className="mb-4 sm:mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100">
+        <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Navigation Steps - Mobile Stack, Desktop Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-2 sm:space-y-0">
               <Button 
                 variant={!selectedVariant ? "default" : "ghost"}
-                size="lg"
+                size="sm"
                 onClick={() => {
                   setSelectedVariant(null);
                   setSelectedSpecificVariant(null);
                 }}
-                className={`${!selectedVariant ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-blue-100'} transition-all`}
+                className={`${!selectedVariant ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-blue-100'} transition-all justify-start sm:justify-center`}
               >
                 🧱 Granite Variants
                 {!selectedVariant && <Badge className="ml-2 bg-white text-blue-600">{variantsArray.length}</Badge>}
@@ -823,14 +829,15 @@ export default function GraniteManagement() {
               
               {selectedVariant && (
                 <>
-                  <span className="text-2xl text-gray-300">→</span>
+                  <span className="hidden sm:inline text-2xl text-gray-300">→</span>
                   <Button 
                     variant={!selectedSpecificVariant ? "default" : "ghost"}
-                    size="lg"
+                    size="sm"
                     onClick={() => setSelectedSpecificVariant(null)}
-                    className={`${!selectedSpecificVariant ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-100'} transition-all`}
+                    className={`${!selectedSpecificVariant ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'hover:bg-purple-100'} transition-all justify-start sm:justify-center`}
                   >
-                    💎 {selectedVariant.name} Variants
+                    💎 {selectedVariant.name} 
+                    <span className="hidden sm:inline"> Variants</span>
                     {!selectedSpecificVariant && <Badge className="ml-2 bg-white text-purple-600">{specificVariantsArray.length}</Badge>}
                   </Button>
                 </>
@@ -838,35 +845,55 @@ export default function GraniteManagement() {
               
               {selectedSpecificVariant && (
                 <>
-                  <span className="text-2xl text-gray-300">→</span>
-                  <div className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                    📦 {selectedSpecificVariant.name} Products
+                  <span className="hidden sm:inline text-2xl text-gray-300">→</span>
+                  <div className="bg-green-600 text-white px-3 py-2 rounded-lg font-medium text-sm">
+                    📦 {selectedSpecificVariant.name} 
+                    <span className="hidden sm:inline"> Products</span>
                     <Badge className="ml-2 bg-white text-green-600">{productsArray.length}</Badge>
                   </div>
                 </>
               )}
             </div>
             
-            {/* Quick Actions */}
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowImportExportModal(true)}>
+            {/* Quick Actions - Mobile Full Width */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowImportExportModal(true)}
+                className="w-full sm:w-auto"
+              >
                 <Upload className="h-4 w-4 mr-1" />
-                Import/Export
+                <span className="sm:hidden">Import/Export</span>
+                <span className="hidden sm:inline">Import/Export</span>
               </Button>
               {selectedVariant && !selectedSpecificVariant && (
-                <Button size="sm" onClick={() => openCreateModal('specificVariant')}>
+                <Button 
+                  size="sm" 
+                  onClick={() => openCreateModal('specificVariant')}
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Specific Variant
+                  <span className="sm:hidden">Add Variant</span>
+                  <span className="hidden sm:inline">Add Specific Variant</span>
                 </Button>
               )}
               {selectedSpecificVariant && (
-                <Button size="sm" onClick={() => openCreateModal('product')}>
+                <Button 
+                  size="sm" 
+                  onClick={() => openCreateModal('product')}
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Product
                 </Button>
               )}
               {!selectedVariant && (
-                <Button size="sm" onClick={() => openCreateModal('variant')}>
+                <Button 
+                  size="sm" 
+                  onClick={() => openCreateModal('variant')}
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Variant
                 </Button>
@@ -879,39 +906,39 @@ export default function GraniteManagement() {
       {/* Main Content Area - Simple Hierarchical View */}
       {!selectedVariant ? (
         /* LEVEL 1: GRANITE VARIANTS VIEW */
-        <div className="space-y-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="space-y-4 sm:space-y-6">
+          {/* Mobile-Responsive Quick Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">{variantsArray.length}</div>
-                <div className="text-sm text-blue-700">🧱 Base Variants</div>
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-blue-600">{variantsArray.length}</div>
+                <div className="text-xs sm:text-sm text-blue-700">🧱 Base Variants</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600">{allSpecificVariantsData?.data?.length || specificVariantsData?.data?.length || 0}</div>
-                <div className="text-sm text-purple-700">💎 Specific Variants</div>
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-purple-600">{allSpecificVariantsData?.data?.length || specificVariantsData?.data?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-purple-700">💎 Specific Variants</div>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">{allProductsData?.data?.length || productsData?.data?.length || 0}</div>
-                <div className="text-sm text-green-700">📦 Total Products</div>
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-green-600">{allProductsData?.data?.length || productsData?.data?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-green-700">📦 Total Products</div>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-orange-600">₹{analytics.totalValue?.toLocaleString() || '0'}</div>
-                <div className="text-sm text-orange-700">💰 Total Value</div>
+            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 col-span-2 sm:col-span-1">
+              <CardContent className="p-3 sm:p-4 text-center">
+                <div className="text-xl sm:text-2xl font-bold text-orange-600">₹{analytics.totalValue?.toLocaleString() || '0'}</div>
+                <div className="text-xs sm:text-sm text-orange-700">💰 Total Value</div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Search & Filter */}
+          {/* Mobile-Responsive Search & Filter */}
           <Card>
-            <CardContent className="p-4">
-              <div className="flex gap-4 items-center">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -921,7 +948,7 @@ export default function GraniteManagement() {
                     className="pl-10"
                   />
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="sm:flex-shrink-0">
                   <Filter className="h-4 w-4 mr-1" />
                   Filters
                 </Button>
@@ -929,15 +956,15 @@ export default function GraniteManagement() {
             </CardContent>
           </Card>
 
-          {/* Granite Variants Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Mobile-Responsive Granite Variants Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {getFilteredVariants.map((variant: GraniteVariant) => (
               <Card 
                 key={variant._id} 
-                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 hover:scale-105 border-2 hover:border-blue-300"
+                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 hover:scale-105 border-2 hover:border-blue-300"
                 onClick={() => setSelectedVariant(variant)}
               >
-                {/* Enhanced Image Section */}
+                {/* Mobile-Optimized Image Section */}
                 <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden rounded-t-lg">
                   <img
                     src={variant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNmI3MjgwIj7wn6e1IEdyYW5pdGUgVmFyaWFudDwvdGV4dD4KPHN2Zz4K'}
@@ -948,65 +975,66 @@ export default function GraniteManagement() {
                     }}
                   />
                   
-                  {/* Hover Overlay */}
+                  {/* Mobile-Friendly Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
                       <div className="text-white text-center">
-                        <div className="text-sm font-medium">Click to explore</div>
-                        <div className="text-xs text-gray-200">View specific variants & products</div>
+                        <div className="text-xs sm:text-sm font-medium">Click to explore</div>
+                        <div className="text-xs text-gray-200 hidden sm:block">View specific variants & products</div>
                       </div>
                     </div>
                     
-                    {/* Action Buttons */}
-                    <div className="absolute top-3 left-3 flex gap-2">
+                    {/* Touch-Friendly Action Buttons */}
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex gap-1 sm:gap-2">
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-white/90 hover:bg-white touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           openEditModal('variant', variant);
                         }}
                       >
-                        <Edit className="h-4 w-4 text-gray-700" />
+                        <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-gray-700" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-500"
+                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-red-500/90 hover:bg-red-500 touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDeleteModal('variant', variant);
                         }}
                         disabled={checkingDependencies}
                       >
-                        <Trash2 className="h-4 w-4 text-white" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Quick Stats Badge */}
-                  <div className="absolute top-3 right-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                    {(allSpecificVariantsData?.data || specificVariantsData?.data || []).filter(sv => sv.variantId === variant._id).length} variants
-                  </div>
                 </div>
 
-                <CardContent className="p-4">
-                  <div className="space-y-3">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
                         🧱 {variant.name}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
                         {variant.description || 'Premium granite variant with excellent quality and durability'}
                       </p>
                     </div>
                     
                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                       <div className="text-xs text-gray-500">
-                        Created: {new Date(variant.createdAt).toLocaleDateString()}
+                        <span className="hidden sm:inline">Created: </span>
+                        {new Date(variant.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: window.innerWidth < 640 ? '2-digit' : 'numeric'
+                        })}
                       </div>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
                         ✅ Active
                       </Badge>
                     </div>
@@ -1015,17 +1043,17 @@ export default function GraniteManagement() {
               </Card>
             ))}
 
-            {/* Add New Variant Card */}
+            {/* Mobile-Friendly Add New Variant Card */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gradient-to-br from-gray-50 to-blue-50"
+              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gradient-to-br from-gray-50 to-blue-50 touch-manipulation"
               onClick={() => openCreateModal('variant')}
             >
-              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
-                <Plus className="h-12 w-12 text-gray-400 group-hover:text-blue-500 transition-colors mb-4" />
-                <h3 className="font-medium text-gray-600 group-hover:text-blue-600 transition-colors">
+              <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full min-h-[180px] sm:min-h-[200px]">
+                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 group-hover:text-blue-500 transition-colors mb-3 sm:mb-4" />
+                <h3 className="font-medium text-sm sm:text-base text-gray-600 group-hover:text-blue-600 transition-colors">
                   Add New Granite Variant
                 </h3>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
                   Create a new base granite variant
                 </p>
               </CardContent>
@@ -1034,33 +1062,33 @@ export default function GraniteManagement() {
         </div>
       ) : !selectedSpecificVariant ? (
         /* LEVEL 2: SPECIFIC VARIANTS VIEW */
-        <div className="space-y-6">
-          {/* Variant Header */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Mobile-Responsive Variant Header */}
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <img
                     src={selectedVariant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjQwIiB5PSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzZiNzI4MCI+8J+ntTwvdGV4dD4KPHN2Zz4K'}
                     alt={selectedVariant.name}
-                    className="w-16 h-16 rounded-lg object-cover"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                   />
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">🧱 {selectedVariant.name}</h2>
-                    <p className="text-gray-600">{selectedVariant.description || 'Base granite variant'}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">🧱 {selectedVariant.name}</h2>
+                    <p className="text-sm sm:text-base text-gray-600">{selectedVariant.description || 'Base granite variant'}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-purple-600">{specificVariantsArray.length}</div>
-                  <div className="text-sm text-purple-700">Specific Variants</div>
+                <div className="text-center sm:text-right">
+                  <div className="text-2xl sm:text-3xl font-bold text-purple-600">{specificVariantsArray.length}</div>
+                  <div className="text-xs sm:text-sm text-purple-700">Specific Variants</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Quick Search */}
+          {/* Mobile-Responsive Quick Search */}
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -1073,8 +1101,8 @@ export default function GraniteManagement() {
             </CardContent>
           </Card>
 
-          {/* Specific Variants Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Mobile-Responsive Specific Variants Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {getFilteredSpecificVariants.map((specificVariant: SpecificGraniteVariant) => (
               <Card 
                 key={specificVariant._id} 
@@ -1129,10 +1157,6 @@ export default function GraniteManagement() {
                     </div>
                   </div>
 
-                  {/* Product Count Badge */}
-                  <div className="absolute top-3 right-3 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                    {(allProductsData?.data || productsData?.data || []).filter(p => p.variantSpecificId === specificVariant._id).length} products
-                  </div>
                 </div>
 
                 <CardContent className="p-4">
@@ -1178,38 +1202,41 @@ export default function GraniteManagement() {
         </div>
       ) : (
         /* LEVEL 3: PRODUCTS VIEW */
-        <div className="space-y-6">
-          {/* Product Header */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Mobile-Responsive Product Header */}
           <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <img
                     src={selectedSpecificVariant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjNlOGZmIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzkzMzNlYSI+8J+SjjwvdGV4dD4KPHN2Zz4K'}
                     alt={selectedSpecificVariant.name}
-                    className="w-16 h-16 rounded-lg object-cover"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                   />
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">📦 {selectedSpecificVariant.name} Products</h2>
-                    <p className="text-gray-600">Products for {selectedVariant.name} → {selectedSpecificVariant.name}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">📦 {selectedSpecificVariant.name} <span className="hidden sm:inline">Products</span></h2>
+                    <p className="text-sm sm:text-base text-gray-600">
+                      <span className="hidden sm:inline">Products for {selectedVariant.name} → {selectedSpecificVariant.name}</span>
+                      <span className="sm:hidden">{selectedVariant.name} Products</span>
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-green-600">{productsArray.length}</div>
-                  <div className="text-sm text-green-700">Products Available</div>
+                <div className="text-center sm:text-right">
+                  <div className="text-2xl sm:text-3xl font-bold text-green-600">{productsArray.length}</div>
+                  <div className="text-xs sm:text-sm text-green-700">Products Available</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Products Controls */}
+          {/* Mobile-Responsive Products Controls */}
           <Card>
-            <CardContent className="p-4">
-              <div className="flex gap-4 items-center justify-between">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center sm:justify-between">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="🔍 Search products..."
+                    placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -1217,7 +1244,7 @@ export default function GraniteManagement() {
                 </div>
                 <div className="flex gap-2">
                   <Select value={filters.sortBy} onValueChange={(value) => setFilters({...filters, sortBy: value})}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-32 sm:w-40">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1227,7 +1254,12 @@ export default function GraniteManagement() {
                       <SelectItem value="createdAt">📅 Date</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                    className="flex-shrink-0"
+                  >
                     {viewMode === 'grid' ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -1235,19 +1267,19 @@ export default function GraniteManagement() {
             </CardContent>
           </Card>
 
-          {/* Products Grid */}
-          <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+          {/* Mobile-Responsive Products Grid */}
+          <div className={`grid gap-4 sm:gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
             {getFilteredProducts.map((product: GraniteProduct) => (
               <Card 
                 key={product._id} 
-                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 hover:scale-105 border-2 hover:border-green-300"
+                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 hover:scale-105 border-2 hover:border-green-300"
                 onClick={() => setDetailedViewModal({
                   isOpen: true,
                   type: 'product',
                   item: product
                 })}
               >
-                {/* Enhanced Image Section */}
+                {/* Mobile-Optimized Image Section */}
                 <div className="relative aspect-[4/3] bg-gradient-to-br from-green-50 to-blue-50 overflow-hidden rounded-t-lg">
                   <img
                     src={(product.images && product.images.length > 0 ? product.images[0] : '') || 
@@ -1259,36 +1291,42 @@ export default function GraniteManagement() {
                     }}
                   />
                   
-                  {/* Stock Status Badge */}
-                  <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${
+                  {/* Mobile-Friendly Stock Status Badge */}
+                  <div className={`absolute top-2 sm:top-3 right-2 sm:right-3 px-2 py-1 rounded-full text-xs font-medium ${
                     (product.stock || 0) <= 0 ? 'bg-red-500 text-white' :
                     (product.stock || 0) <= 10 ? 'bg-yellow-500 text-white' :
                     'bg-green-500 text-white'
                   }`}>
-                    {(product.stock || 0) <= 0 ? '❌ Out of Stock' :
-                     (product.stock || 0) <= 10 ? '⚠️ Low Stock' :
-                     `✅ ${product.stock} in stock`}
+                    {(product.stock || 0) <= 0 ? '❌' :
+                     (product.stock || 0) <= 10 ? '⚠️' :
+                     `✅`}
+                    <span className="hidden sm:inline ml-1">
+                      {(product.stock || 0) <= 0 ? ' Out of Stock' :
+                       (product.stock || 0) <= 10 ? ' Low Stock' :
+                       ` ${product.stock} in stock`}
+                    </span>
                   </div>
 
                   {/* Multiple Images Indicator */}
                   {product.images && product.images.length > 1 && (
-                    <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                      🖼️ {product.images.length} photos
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                      🖼️ <span className="hidden sm:inline">{product.images.length} photos</span>
+                      <span className="sm:hidden">{product.images.length}</span>
                     </div>
                   )}
                   
-                  {/* Price Badge */}
-                  <div className="absolute bottom-3 left-3 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  {/* Mobile-Optimized Price Badge */}
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 bg-green-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
                     ₹{product.basePrice?.toLocaleString() || 'N/A'}
                   </div>
 
-                  {/* Hover Overlay */}
+                  {/* Touch-Friendly Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-4 right-4">
+                    <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4">
                       <Button 
                         variant="secondary" 
                         size="sm"
-                        className="bg-white/90 hover:bg-white text-gray-900"
+                        className="bg-white/90 hover:bg-white text-gray-900 text-xs sm:text-sm touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDetailedViewModal({
@@ -1298,59 +1336,68 @@ export default function GraniteManagement() {
                           });
                         }}
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Details
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        <span className="hidden sm:inline">View Details</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <CardContent className="p-4">
-                  <div className="space-y-3">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-green-600 transition-colors">
+                      <h3 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">
                         📦 {product.name}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-gray-600">
                         📏 {product.unit || 'sq_ft'} • 
                         {product.finish && product.finish.length > 0 ? ` ${product.finish.length} finishes` : ' Standard finish'}
                       </p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        📦 {product.stock || 0} units
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                        📦 {product.stock || 0}
+                        <span className="hidden sm:inline"> units</span>
                       </Badge>
                       <Badge variant={product.status === 'active' ? 'default' : 'secondary'} 
-                             className={product.status === 'active' ? 'bg-green-100 text-green-800' : ''}>
-                        {product.status === 'active' ? '✅' : '⏸️'} {product.status}
+                             className={`text-xs ${product.status === 'active' ? 'bg-green-100 text-green-800' : ''}`}>
+                        {product.status === 'active' ? '✅' : '⏸️'} 
+                        <span className="hidden sm:inline ml-1">{product.status}</span>
                       </Badge>
                     </div>
                     
                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                       <div className="text-xs text-gray-500">
-                        {new Date(product.createdAt).toLocaleDateString()}
+                        {new Date(product.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: window.innerWidth < 640 ? '2-digit' : 'numeric'
+                        })}
                       </div>
                       <div className="flex gap-1">
                         <Button 
                           variant="ghost" 
                           size="sm"
+                          className="h-8 w-8 p-0 touch-manipulation"
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditModal('product', product);
                           }}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
+                          className="h-8 w-8 p-0 touch-manipulation"
                           onClick={(e) => {
                             e.stopPropagation();
                             openDeleteModal('product', product);
                           }}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>
@@ -1359,18 +1406,19 @@ export default function GraniteManagement() {
               </Card>
             ))}
 
-            {/* Add New Product Card */}
+            {/* Mobile-Friendly Add New Product Card */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-green-400 bg-gradient-to-br from-gray-50 to-green-50"
+              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-green-400 bg-gradient-to-br from-gray-50 to-green-50 touch-manipulation"
               onClick={() => openCreateModal('product')}
             >
-              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
-                <Plus className="h-12 w-12 text-gray-400 group-hover:text-green-500 transition-colors mb-4" />
-                <h3 className="font-medium text-gray-600 group-hover:text-green-600 transition-colors">
+              <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full min-h-[180px] sm:min-h-[200px]">
+                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 group-hover:text-green-500 transition-colors mb-3 sm:mb-4" />
+                <h3 className="font-medium text-sm sm:text-base text-gray-600 group-hover:text-green-600 transition-colors">
                   Add New Product
                 </h3>
-                <p className="text-sm text-gray-500 mt-2">
-                  Create a product for {selectedSpecificVariant.name}
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                  <span className="hidden sm:inline">Create a product for {selectedSpecificVariant.name}</span>
+                  <span className="sm:hidden">Add product for {selectedSpecificVariant.name}</span>
                 </p>
               </CardContent>
             </Card>
@@ -1378,135 +1426,402 @@ export default function GraniteManagement() {
         </div>
       )}
 
-      {/* Modals and Other Components */}
-      <FormModal
+      {/* Mobile-Responsive Enhanced Modals */}
+      <EnhancedFormModal
         isOpen={showModal.type !== null && showModal.type !== 'delete'}
         onClose={() => setShowModal({ type: null, mode: 'create' })}
         title={showModal.mode === 'create' ? `Add New ${showModal.type}` : `Edit ${showModal.type}`}
+        description={
+          showModal.type === 'variant' ? 'Create a new granite variant with essential details' :
+          showModal.type === 'specificVariant' ? `Add a specific variant for ${selectedVariant?.name}` :
+          showModal.type === 'product' ? `Create a new product for ${selectedSpecificVariant?.name}` :
+          'Please fill in the required information'
+        }
         onSubmit={showModal.mode === 'create' ? handleCreate : handleEdit}
+        enableSections={showModal.type === 'product'} // Only use sections for products
+        size="xl" // Use large size for better mobile experience
         fields={
           showModal.type === 'variant' ? [
-            { name: 'name', label: 'Variant Name', type: 'text', required: true },
-            { name: 'description', label: 'Description', type: 'textarea', required: false },
-            { name: 'image', label: 'Variant Image', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
+            { 
+              name: 'name', 
+              label: 'Variant Name', 
+              type: 'text', 
+              required: true,
+              description: 'Enter a unique name for this granite variant',
+              placeholder: 'e.g., Premium Black Granite, Himalayan Blue'
+            },
+            { 
+              name: 'description', 
+              label: 'Description', 
+              type: 'textarea', 
+              required: false,
+              description: 'Detailed description of the granite variant characteristics',
+              placeholder: 'Describe the color, pattern, origin, and unique features...',
+              rows: 4
+            },
+            { 
+              name: 'image', 
+              label: 'Variant Image', 
+              type: 'file', 
+              required: false,
+              description: 'Upload a representative image of this granite variant',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
           ] : showModal.type === 'specificVariant' ? [
-            { name: 'name', label: 'Specific Variant Name', type: 'text', required: true },
-            { name: 'description', label: 'Description', type: 'textarea', required: false },
-            { name: 'image', label: 'Specific Variant Image', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
+            { 
+              name: 'name', 
+              label: 'Specific Variant Name', 
+              type: 'text', 
+              required: true,
+              description: `Enter a specific name for this ${selectedVariant?.name} variant`,
+              placeholder: 'e.g., Polished, Natural Split, Bush Hammered'
+            },
+            { 
+              name: 'description', 
+              label: 'Description', 
+              type: 'textarea', 
+              required: false,
+              description: 'Describe the specific characteristics, finish, or processing of this variant',
+              placeholder: 'Describe the finish, texture, applications, and unique properties...',
+              rows: 4
+            },
+            { 
+              name: 'image', 
+              label: 'Specific Variant Image', 
+              type: 'file', 
+              required: false,
+              description: 'Upload an image showing this specific variant finish or style',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
           ] : showModal.type === 'product' ? [
             // Core identification
-            { name: 'name', label: 'Product Name', type: 'text', required: true },
-            { name: 'category', label: 'Product Category', type: 'select', required: true, options: [
-              { value: 'Pattern', label: 'Pattern' },
-              { value: 'Fillers', label: 'Fillers' },
-              { value: 'Platforms', label: 'Platforms' },
-              { value: 'Slab', label: 'Slab' },
-              { value: 'Steps', label: 'Steps' },
-              { value: 'Treads', label: 'Treads' },
-              { value: 'Pool Coping', label: 'Pool Coping' },
-              { value: 'Pillar Caps', label: 'Pillar Caps' },
-              { value: 'Firepit Coping', label: 'Firepit Coping' },
-              { value: 'Horse Trough', label: 'Horse Trough' },
-              { value: 'BH Pavers', label: 'BH Pavers' },
-              { value: 'Curbs', label: 'Curbs' },
-              { value: 'Posts', label: 'Posts' },
-              { value: 'Other', label: 'Other' }
-            ]},
-            { name: 'subcategory', label: 'Subcategory (Optional)', type: 'text', required: false, placeholder: 'e.g., Natural Split, Bush Hammered' },
+            { 
+              name: 'name', 
+              label: 'Product Name', 
+              type: 'text', 
+              required: true,
+              description: 'Enter a clear, descriptive name for this granite product',
+              placeholder: 'e.g., Premium Granite Steps 48x12x6'
+            },
+            { 
+              name: 'category', 
+              label: 'Product Category', 
+              type: 'select', 
+              required: true,
+              description: 'Select the primary category that best describes this product',
+              options: [
+                { value: 'Pattern', label: 'Pattern' },
+                { value: 'Fillers', label: 'Fillers' },
+                { value: 'Platforms', label: 'Platforms' },
+                { value: 'Slab', label: 'Slab' },
+                { value: 'Steps', label: 'Steps' },
+                { value: 'Treads', label: 'Treads' },
+                { value: 'Pool Coping', label: 'Pool Coping' },
+                { value: 'Pillar Caps', label: 'Pillar Caps' },
+                { value: 'Firepit Coping', label: 'Firepit Coping' },
+                { value: 'Horse Trough', label: 'Horse Trough' },
+                { value: 'BH Pavers', label: 'BH Pavers' },
+                { value: 'Curbs', label: 'Curbs' },
+                { value: 'Posts', label: 'Posts' },
+                { value: 'Other', label: 'Other' }
+              ]
+            },
+            { 
+              name: 'subcategory', 
+              label: 'Subcategory (Optional)', 
+              type: 'text', 
+              required: false,
+              description: 'Add specific details about the finish or style',
+              placeholder: 'e.g., Natural Split, Bush Hammered, Thermal Finish'
+            },
             
             // Dimensions & specifications
-            { name: 'length', label: 'Length (inches)', type: 'number', required: true, min: 0, step: 0.1, placeholder: 'e.g., 48' },
-            { name: 'width', label: 'Width (inches)', type: 'number', required: true, min: 0, step: 0.1, placeholder: 'e.g., 36' },
-            { name: 'thickness', label: 'Thickness (inches)', type: 'number', required: true, min: 0, step: 0.1, placeholder: 'e.g., 6' },
-            { name: 'weight_per_piece', label: 'Weight per Piece (kg) - Optional', type: 'number', required: false, min: 0, step: 0.1 },
-            { name: 'area_per_piece', label: 'Area per Piece (sq ft) - Optional', type: 'number', required: false, min: 0, step: 0.01, placeholder: 'Leave empty for auto-calculation' },
+            { 
+              name: 'length', 
+              label: 'Length (inches)', 
+              type: 'number', 
+              required: true, 
+              min: 0, 
+              step: 0.1,
+              description: 'The longest dimension of the product',
+              placeholder: 'e.g., 48'
+            },
+            { 
+              name: 'width', 
+              label: 'Width (inches)', 
+              type: 'number', 
+              required: true, 
+              min: 0, 
+              step: 0.1,
+              description: 'The width dimension of the product',
+              placeholder: 'e.g., 36'
+            },
+            { 
+              name: 'thickness', 
+              label: 'Thickness (inches)', 
+              type: 'number', 
+              required: true, 
+              min: 0, 
+              step: 0.1,
+              description: 'The depth or thickness of the product',
+              placeholder: 'e.g., 6'
+            },
+            { 
+              name: 'weight_per_piece', 
+              label: 'Weight per Piece (lbs) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.1,
+              description: 'Weight of a single piece in pounds'
+            },
+            { 
+              name: 'area_per_piece', 
+              label: 'Area per Piece (sq ft) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.01,
+              description: 'Will be auto-calculated if left empty',
+              placeholder: 'Leave empty for auto-calculation'
+            },
             
             // Packaging & inventory
-            { name: 'pieces_per_crate', label: 'Pieces per Crate', type: 'number', required: true, min: 1, placeholder: 'e.g., 20' },
-            { name: 'pieces_per_set', label: 'Pieces per Set (Optional)', type: 'number', required: false, min: 1, placeholder: 'For set-based products' },
-            { name: 'crate_weight', label: 'Crate Weight (kg) - Optional', type: 'number', required: false, min: 0, step: 0.1 },
-            { name: 'stock', label: 'Stock Quantity', type: 'number', required: true, min: 0 },
-            { name: 'unit_type', label: 'Unit Type', type: 'select', required: true, options: [
-              { value: 'sqft', label: 'Square Feet (sqft)' },
-              { value: 'sq_m', label: 'Square Meter (sq_m)' },
-              { value: 'piece', label: 'Piece' },
-              { value: 'set', label: 'Set' },
-              { value: 'crate', label: 'Crate' },
-              { value: 'slab', label: 'Slab' }
-            ]},
+            { 
+              name: 'pieces_per_crate', 
+              label: 'Pieces per Crate', 
+              type: 'number', 
+              required: true, 
+              min: 1,
+              description: 'How many pieces come in one shipping crate',
+              placeholder: 'e.g., 20'
+            },
+            { 
+              name: 'pieces_per_set', 
+              label: 'Pieces per Set (Optional)', 
+              type: 'number', 
+              required: false, 
+              min: 1,
+              description: 'For products sold in sets (leave empty if not applicable)',
+              placeholder: 'For set-based products'
+            },
+            { 
+              name: 'crate_weight', 
+              label: 'Crate Weight (lbs) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.1,
+              description: 'Total weight of a full crate including packaging'
+            },
+            { 
+              name: 'stock', 
+              label: 'Stock Quantity', 
+              type: 'number', 
+              required: true, 
+              min: 0,
+              description: 'Current inventory count in your chosen unit type'
+            },
+            { 
+              name: 'unit_type', 
+              label: 'Unit Type', 
+              type: 'select', 
+              required: true,
+              description: 'How this product is measured and sold',
+              options: [
+                { value: 'sqft', label: 'Square Feet (sqft)' },
+                { value: 'sq_m', label: 'Square Meter (sq_m)' },
+                { value: 'piece', label: 'Piece' },
+                { value: 'set', label: 'Set' },
+                { value: 'crate', label: 'Crate' },
+                { value: 'slab', label: 'Slab' }
+              ]
+            },
             
             // Pricing structure
-            { name: 'price_per_unit', label: 'Price per Unit ($)', type: 'number', required: true, min: 0, step: 0.01, placeholder: 'Primary pricing' },
-            { name: 'price_per_sqft', label: 'Price per Sq Ft ($) - Optional', type: 'number', required: false, min: 0, step: 0.01 },
-            { name: 'price_per_piece', label: 'Price per Piece ($) - Optional', type: 'number', required: false, min: 0, step: 0.01 },
-            { name: 'price_per_set', label: 'Price per Set ($) - Optional', type: 'number', required: false, min: 0, step: 0.01 },
-            { name: 'currency', label: 'Currency', type: 'select', required: true, options: [
-              { value: 'USD', label: 'USD ($)' },
-              { value: 'EUR', label: 'EUR (€)' },
-              { value: 'INR', label: 'INR (₹)' },
-              { value: 'GBP', label: 'GBP (£)' }
-            ]},
+            { 
+              name: 'price_per_unit', 
+              label: 'Price per Unit ($)', 
+              type: 'number', 
+              required: true, 
+              min: 0, 
+              step: 0.01,
+              description: 'Primary selling price per unit (matches your unit type above)',
+              placeholder: 'Primary pricing'
+            },
+            { 
+              name: 'price_per_sqft', 
+              label: 'Price per Sq Ft ($) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.01,
+              description: 'Alternative pricing per square foot (if applicable)'
+            },
+            { 
+              name: 'price_per_piece', 
+              label: 'Price per Piece ($) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.01,
+              description: 'Alternative pricing per individual piece'
+            },
+            { 
+              name: 'price_per_set', 
+              label: 'Price per Set ($) - Optional', 
+              type: 'number', 
+              required: false, 
+              min: 0, 
+              step: 0.01,
+              description: 'Pricing for set-based sales (if applicable)'
+            },
+            { 
+              name: 'currency', 
+              label: 'Currency', 
+              type: 'select', 
+              required: true,
+              description: 'Currency for all pricing',
+              options: [
+                { value: 'USD', label: 'USD ($)' },
+                { value: 'EUR', label: 'EUR (€)' },
+                { value: 'INR', label: 'INR (₹)' },
+                { value: 'GBP', label: 'GBP (£)' }
+              ]
+            },
             
             // Product features
-            { name: 'finish', label: 'Available Finishes', type: 'multiselect', required: false, options: [
-              { value: 'polished', label: 'Polished' },
-              { value: 'honed', label: 'Honed' },
-              { value: 'brushed', label: 'Brushed' },
-              { value: 'bush_hammered', label: 'Bush Hammered' },
-              { value: 'natural_split', label: 'Natural Split' },
-              { value: 'flamed', label: 'Flamed' },
-              { value: 'tumbled', label: 'Tumbled' },
-              { value: 'sandblasted', label: 'Sandblasted' }
-            ]},
-            { name: 'applications', label: 'Applications', type: 'multiselect', required: false, options: [
-              { value: 'flooring', label: 'Flooring' },
-              { value: 'wall_cladding', label: 'Wall Cladding' },
-              { value: 'countertops', label: 'Countertops' },
-              { value: 'landscaping', label: 'Landscaping' },
-              { value: 'garden_edging', label: 'Garden Edging' },
-              { value: 'decorative_borders', label: 'Decorative Borders' },
-              { value: 'outdoor_platforms', label: 'Outdoor Platforms' },
-              { value: 'patios', label: 'Patios' },
-              { value: 'decking', label: 'Decking' },
-              { value: 'large_surfaces', label: 'Large Surfaces' },
-              { value: 'monuments', label: 'Monuments' },
-              { value: 'staircases', label: 'Staircases' },
-              { value: 'landscape_steps', label: 'Landscape Steps' },
-              { value: 'garden_steps', label: 'Garden Steps' },
-              { value: 'stair_treads', label: 'Stair Treads' },
-              { value: 'step_covers', label: 'Step Covers' },
-              { value: 'landing_surfaces', label: 'Landing Surfaces' },
-              { value: 'pool_edges', label: 'Pool Edges' },
-              { value: 'pool_coping', label: 'Pool Coping' },
-              { value: 'water_features', label: 'Water Features' },
-              { value: 'column_caps', label: 'Column Caps' },
-              { value: 'pillar_tops', label: 'Pillar Tops' },
-              { value: 'architectural_elements', label: 'Architectural Elements' }
-            ]},
-            { name: 'special_features', label: 'Special Features (comma separated)', type: 'text', required: false, placeholder: 'e.g., rounded edges, custom grinding finish' },
+            { 
+              name: 'finish', 
+              label: 'Available Finishes', 
+              type: 'multiselect', 
+              required: false,
+              description: 'Select all available surface finishes for this product',
+              options: [
+                { value: 'polished', label: 'Polished' },
+                { value: 'honed', label: 'Honed' },
+                { value: 'brushed', label: 'Brushed' },
+                { value: 'bush_hammered', label: 'Bush Hammered' },
+                { value: 'natural_split', label: 'Natural Split' },
+                { value: 'flamed', label: 'Flamed' },
+                { value: 'tumbled', label: 'Tumbled' },
+                { value: 'sandblasted', label: 'Sandblasted' }
+              ]
+            },
+            { 
+              name: 'applications', 
+              label: 'Suitable Applications', 
+              type: 'multiselect', 
+              required: false,
+              description: 'Select all suitable uses for this product',
+              options: [
+                { value: 'flooring', label: 'Flooring' },
+                { value: 'wall_cladding', label: 'Wall Cladding' },
+                { value: 'countertops', label: 'Countertops' },
+                { value: 'landscaping', label: 'Landscaping' },
+                { value: 'garden_edging', label: 'Garden Edging' },
+                { value: 'decorative_borders', label: 'Decorative Borders' },
+                { value: 'outdoor_platforms', label: 'Outdoor Platforms' },
+                { value: 'patios', label: 'Patios' },
+                { value: 'decking', label: 'Decking' },
+                { value: 'large_surfaces', label: 'Large Surfaces' },
+                { value: 'monuments', label: 'Monuments' },
+                { value: 'staircases', label: 'Staircases' },
+                { value: 'landscape_steps', label: 'Landscape Steps' },
+                { value: 'garden_steps', label: 'Garden Steps' },
+                { value: 'stair_treads', label: 'Stair Treads' },
+                { value: 'step_covers', label: 'Step Covers' },
+                { value: 'landing_surfaces', label: 'Landing Surfaces' },
+                { value: 'pool_edges', label: 'Pool Edges' },
+                { value: 'pool_coping', label: 'Pool Coping' },
+                { value: 'water_features', label: 'Water Features' },
+                { value: 'column_caps', label: 'Column Caps' },
+                { value: 'pillar_tops', label: 'Pillar Tops' },
+                { value: 'architectural_elements', label: 'Architectural Elements' }
+              ]
+            },
+            { 
+              name: 'special_features', 
+              label: 'Special Features', 
+              type: 'text', 
+              required: false,
+              description: 'Any unique characteristics, custom work, or special features',
+              placeholder: 'e.g., rounded edges, custom grinding finish, anti-slip surface'
+            },
             
             // Legacy compatibility
-            { name: 'basePrice', label: 'Base Price ($) - Legacy', type: 'number', required: true, min: 0, step: 0.01, placeholder: 'Will sync with price_per_unit' },
-            { name: 'unit', label: 'Unit - Legacy', type: 'select', required: true, options: [
-              { value: 'sqft', label: 'Square Feet (sqft)' },
-              { value: 'sq_m', label: 'Square Meter (sq_m)' },
-              { value: 'piece', label: 'Piece' },
-              { value: 'slab', label: 'Slab' }
-            ]},
+            { 
+              name: 'basePrice', 
+              label: 'Base Price ($) - Legacy', 
+              type: 'number', 
+              required: true, 
+              min: 0, 
+              step: 0.01,
+              description: 'This will automatically sync with price per unit above',
+              placeholder: 'Will sync with price_per_unit'
+            },
+            { 
+              name: 'unit', 
+              label: 'Unit - Legacy', 
+              type: 'select', 
+              required: true,
+              description: 'Legacy unit field - should match unit type above',
+              options: [
+                { value: 'sqft', label: 'Square Feet (sqft)' },
+                { value: 'sq_m', label: 'Square Meter (sq_m)' },
+                { value: 'piece', label: 'Piece' },
+                { value: 'slab', label: 'Slab' }
+              ]
+            },
             
             // Media
-            { name: 'image1', label: 'Product Image 1', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
-            { name: 'image2', label: 'Product Image 2 (optional)', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
-            { name: 'image3', label: 'Product Image 3 (optional)', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
-            { name: 'image4', label: 'Product Image 4 (optional)', type: 'file', required: false, accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml' },
+            { 
+              name: 'image1', 
+              label: 'Primary Product Image', 
+              type: 'file', 
+              required: false,
+              description: 'Main product photo - this will be the first image customers see',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
+            { 
+              name: 'image2', 
+              label: 'Additional Image 2', 
+              type: 'file', 
+              required: false,
+              description: 'Second product photo showing different angle or detail',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
+            { 
+              name: 'image3', 
+              label: 'Additional Image 3', 
+              type: 'file', 
+              required: false,
+              description: 'Third product photo for comprehensive view',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
+            { 
+              name: 'image4', 
+              label: 'Additional Image 4', 
+              type: 'file', 
+              required: false,
+              description: 'Fourth product photo for complete documentation',
+              accept: 'image/jpeg,image/jpg,image/png,image/webp,image/gif,image/svg+xml'
+            },
             
             // Status
-            { name: 'status', label: 'Status', type: 'select', required: true, options: [
-              { value: 'active', label: 'Active' },
-              { value: 'inactive', label: 'Inactive' },
-              { value: 'discontinued', label: 'Discontinued' },
-              { value: 'out_of_stock', label: 'Out of Stock' }
-            ]}
+            { 
+              name: 'status', 
+              label: 'Product Status', 
+              type: 'select', 
+              required: true,
+              description: 'Current availability status of this product',
+              options: [
+                { value: 'active', label: 'Active - Available for sale' },
+                { value: 'inactive', label: 'Inactive - Temporarily unavailable' },
+                { value: 'discontinued', label: 'Discontinued - No longer produced' },
+                { value: 'out_of_stock', label: 'Out of Stock - Temporarily sold out' }
+              ]
+            }
           ] : []
         }
         initialData={

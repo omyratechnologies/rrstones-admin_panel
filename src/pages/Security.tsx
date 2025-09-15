@@ -108,13 +108,6 @@ export function SecurityPage() {
     },
   });
 
-  const updateSecuritySettingsMutation = useMutation({
-    mutationFn: (settings: any) => adminApi.updateSecuritySettings(settings),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['security-settings'] });
-    },
-  });
-
   // Handle manual refresh
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['security-overview'] });

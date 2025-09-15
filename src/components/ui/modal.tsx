@@ -60,8 +60,8 @@ export function Modal({
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    full: 'max-w-4xl'
+    xl: 'max-w-4xl',
+    full: 'max-w-6xl'
   };
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -87,6 +87,9 @@ export function Modal({
           'max-h-[90vh] overflow-hidden flex flex-col',
           className
         )}
+        style={{ 
+          scrollbarGutter: 'stable both-edges'
+        }}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
@@ -127,7 +130,7 @@ export function Modal({
         )}
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </div>

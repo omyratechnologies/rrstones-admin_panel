@@ -23,12 +23,6 @@ import {
 } from '../../services/importExportService';
 import { 
   devLogger,
-  logImportStart,
-  logImportProgress,
-  logImportComplete,
-  logExportStart,
-  logExportComplete,
-  logUserAction,
   startPerformanceTimer,
   endPerformanceTimer
 } from '../../utils/developmentLogger';
@@ -232,7 +226,7 @@ export function ImportExportModal({
       fileSize: selectedFile.size 
     });
     
-    logImportStart(type, selectedFile.name, selectedFile.size, importOptions);
+    devLogger.info('import', 'Import started', { type, fileName: selectedFile.name, fileSize: selectedFile.size, importOptions });
     logUserAction('import_start', 'ImportExportModal', { type, fileName: selectedFile.name });
     
     try {
@@ -280,7 +274,7 @@ export function ImportExportModal({
         duration
       };
       
-      logImportComplete(type, result);
+      devLogger.info('import', 'Import completed', { type, result });
       logUserAction('import_complete', 'ImportExportModal', result);
       
       onImportComplete?.(result);
@@ -320,7 +314,7 @@ export function ImportExportModal({
       format: exportOptions.format 
     });
     
-    logExportStart(type, data.length, exportOptions.format, exportOptions);
+    devLogger.info('export', 'Export started', { type, recordCount: data.length, format: exportOptions.format, exportOptions });
     logUserAction('export_start', 'ImportExportModal', { type, recordCount: data.length, format: exportOptions.format });
     
     try {
@@ -362,7 +356,7 @@ export function ImportExportModal({
         duration
       };
       
-      logExportComplete(type, result);
+      devLogger.info('export', 'Export completed', { type, result });
       logUserAction('export_complete', 'ImportExportModal', result);
       
       onExportComplete?.(filename);

@@ -7,13 +7,10 @@ import {
   Users,
   Package,
   ShoppingCart,
-  FileText,
-  BarChart3,
   Settings,
   Mountain,
   UserCog,
   Shield,
-  Activity,
   LogOut,
   X
 } from 'lucide-react';

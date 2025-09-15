@@ -1,11 +1,6 @@
 // Advanced Import/Export Service with Logging
 import { 
   devLogger, 
-  logImportStart, 
-  logImportProgress, 
-  logImportComplete,
-  logExportStart, 
-  logExportComplete,
   startPerformanceTimer, 
   endPerformanceTimer 
 } from '../utils/developmentLogger';
@@ -13,8 +8,7 @@ import { graniteApi } from './graniteApi';
 import type { 
   GraniteVariant, 
   SpecificGraniteVariant, 
-  GraniteProduct,
-  ApiResponse 
+  GraniteProduct
 } from '@/types';
 export interface ImportExportLog {
   id: string;
