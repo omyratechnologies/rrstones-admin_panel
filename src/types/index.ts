@@ -10,6 +10,7 @@ export interface User {
   customDiscount?: number;
   isActive: boolean;
   role: 'super_admin' | 'admin' | 'staff' | 'customer';
+  permissions?: string[];
   createdAt: string;
   updatedAt: string;
 }

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'react-hot-toast';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { Login } from '@/pages/Login';
@@ -12,6 +13,7 @@ import { OrderManagement } from '@/pages/orders/OrderManagement';
 import PermissionManagement from '@/pages/admin/PermissionManagement';
 import TierManagement from '@/pages/admin/TierManagement';
 import { SecurityPage } from '@/pages/Security';
+import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -137,13 +139,34 @@ function App() {
             path="/settings"
             element={
               <AdminProtectedRoute>
-                <div>Settings Page (Coming Soon)</div>
+                <Settings />
               </AdminProtectedRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#333',
+            fontSize: '14px',
+          },
+          success: {
+            style: {
+              border: '1px solid #10B981',
+            },
+          },
+          error: {
+            style: {
+              border: '1px solid #EF4444',
+            },
+          },
+        }}
+      />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
