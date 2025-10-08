@@ -57,11 +57,11 @@ export function Modal({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-4xl',
-    full: 'max-w-6xl'
+    sm: 'max-w-sm w-full sm:w-auto',
+    md: 'max-w-md w-full sm:w-auto',
+    lg: 'max-w-lg w-full sm:w-auto',
+    xl: 'max-w-4xl w-full',
+    full: 'max-w-6xl w-full'
   };
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -71,10 +71,10 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-300"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
@@ -82,9 +82,9 @@ export function Modal({
       {/* Modal Content */}
       <div
         className={cn(
-          'relative w-full mx-4 bg-white rounded-lg shadow-xl transform transition-all duration-300 scale-100 opacity-100',
+          'relative bg-card rounded-lg shadow-xl transform transition-all duration-300 scale-100 opacity-100',
           sizeClasses[size],
-          'max-h-[90vh] overflow-hidden flex flex-col',
+          'max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col',
           className
         )}
         style={{ 
@@ -97,12 +97,12 @@ export function Modal({
       >
         {/* Header */}
         {(title || description || showCloseButton) && (
-          <div className="flex items-start justify-between p-6 border-b border-gray-200">
-            <div className="flex-1">
+          <div className="flex items-start justify-between p-4 sm:p-6 border-b border-border">
+            <div className="flex-1 min-w-0 pr-4">
               {title && (
                 <h3
                   id="modal-title"
-                  className="text-lg font-semibold text-gray-900 leading-6"
+                  className="text-lg font-semibold text-foreground leading-6 truncate"
                 >
                   {title}
                 </h3>
@@ -110,7 +110,7 @@ export function Modal({
               {description && (
                 <p
                   id="modal-description"
-                  className="mt-1 text-sm text-gray-600"
+                  className="mt-1 text-sm text-muted-foreground"
                 >
                   {description}
                 </p>
@@ -119,7 +119,7 @@ export function Modal({
             {showCloseButton && (
               <button
                 type="button"
-                className="ml-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flex-shrink-0 p-2 text-muted-foreground hover:text-muted-foreground hover:bg-muted rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 onClick={onClose}
                 aria-label="Close modal"
               >
@@ -162,7 +162,7 @@ export function ModalTitle({
   className?: string; 
 }) {
   return (
-    <h3 className={cn('text-lg font-semibold text-gray-900 leading-6', className)}>
+    <h3 className={cn('text-lg font-semibold text-foreground leading-6', className)}>
       {children}
     </h3>
   );
@@ -177,7 +177,7 @@ export function ModalDescription({
   className?: string; 
 }) {
   return (
-    <p className={cn('text-sm text-gray-600 mt-1', className)}>
+    <p className={cn('text-sm text-muted-foreground mt-1', className)}>
       {children}
     </p>
   );
@@ -207,7 +207,7 @@ export function ModalFooter({
   className?: string; 
 }) {
   return (
-    <div className={cn('flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6', className)}>
+    <div className={cn('flex justify-end gap-3 pt-4 border-t border-border mt-6', className)}>
       {children}
     </div>
   );

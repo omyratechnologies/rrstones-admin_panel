@@ -104,6 +104,39 @@ export const graniteApi = {
     return apiService.get('/granite/search', { params: { q: query } });
   },
 
+  // NEW: Business logic endpoints
+  calculateCart: async (data: {
+    items: Array<{
+      productId: string;
+      sizeVariant?: string;
+      crates?: number;
+      pieces?: number;
+    }>;
+    userTier?: string;
+    customDiscount?: number;
+    shippingFee?: number;
+  }): Promise<ApiResponse<any>> => {
+    return apiService.post('/granite/calculate-cart', data);
+  },
+
+  checkShippingWeight: async (data: {
+    items: Array<{
+      productId: string;
+      sizeVariant?: string;
+      quantity: number;
+    }>;
+  }): Promise<ApiResponse<any>> => {
+    return apiService.post('/granite/check-shipping-weight', data);
+  },
+
+  getProductSizes: async (productId: string): Promise<ApiResponse<any>> => {
+    return apiService.get(`/granite/products/${productId}/sizes`);
+  },
+
+  getBusinessConfig: async (): Promise<ApiResponse<any>> => {
+    return apiService.get('/granite/business-config');
+  },
+
   // Bulk operations
   bulkUpdateProducts: async (productIds: string[], updates: Partial<GraniteProduct>): Promise<ApiResponse> => {
     return apiService.put('/granite/products/bulk', { productIds, updates });

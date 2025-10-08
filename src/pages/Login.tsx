@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useBusinessSettings } from '@/hooks/useBusinessSettings';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/store/authStore';
@@ -15,6 +16,7 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthStore();
   const { addNotification } = useUIStore();
+  const { companyName } = useBusinessSettings();
 
   const {
     register,
@@ -80,7 +82,7 @@ export function Login() {
               <Mountain className="h-6 w-6 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome to RRStones</CardTitle>
+          <CardTitle className="text-2xl font-bold">Welcome to {companyName}</CardTitle>
           <CardDescription>
             Sign in to your admin dashboard
           </CardDescription>

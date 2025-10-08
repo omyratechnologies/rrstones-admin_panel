@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
+import { useBusinessSettings } from '@/hooks/useBusinessSettings';
 import { useUIStore } from '@/store/uiStore';
 import {
   LayoutDashboard,
@@ -34,6 +35,7 @@ export function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { companyName } = useBusinessSettings();
 
   const handleLogout = () => {
     logout();
@@ -62,7 +64,7 @@ export function Sidebar() {
           <div className="flex h-16 items-center justify-between px-6 border-b">
             <div className="flex items-center space-x-2">
               <Mountain className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">RRStones</span>
+              <span className="text-xl font-bold">{companyName}</span>
             </div>
             <Button
               variant="ghost"

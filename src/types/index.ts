@@ -50,23 +50,87 @@ export interface SpecificGraniteVariant {
 }
 
 export interface Dimension {
-  length: string;
-  width: string;
-  thickness: string;
+  length: number;
+  width: number;
+  thickness: number;
+  unit: string; // inches, cm, mm
+}
+
+export interface SizeVariant {
+  size_name: string; // e.g., "12x12x1.25", "12x18x1.25"
+  dimensions: Dimension;
+  area_per_piece: number;
+  weight_per_piece: number; // in lbs
+  price_per_piece: number;
+  price_per_sqft?: number;
+  stock: number;
+  sku?: string;
+}
+
+export interface BusinessConfig {
+  pieces_per_crate: number; // Default: 10
+  filler_rate: number; // Default: 0.5 (50%)
+  max_shipping_weight: number; // Default: 48000 lbs
+  weight_unit: string; // Default: 'lbs'
+}
+
+export interface Packaging {
+  pieces_per_crate: number;
+  pieces_per_set?: number;
+  crate_weight?: number;
+  pieces_weight?: number;
+}
+
+export interface Pricing {
+  price_per_unit: number;
+  price_per_sqft?: number;
+  price_per_piece?: number;
+  price_per_set?: number;
+  currency: string;
 }
 
 export interface GraniteProduct {
   _id: string;
   variantSpecificId: string;
+  
+  // Core identification
   name: string;
-  finish: string[];
-  dimensions: Dimension[];
-  unit: string;
-  basePrice: number;
+  category: string; // Pattern, Fillers, Platforms, Slab, Steps, Treads, Pool Coping, Pillar Caps, etc.
+  subcategory?: string; // For specialized products
+  
+  // Size variants support (NEW)
+  has_multiple_sizes: boolean;
+  size_variants?: SizeVariant[];
+  
+  // Business configuration (NEW)
+  business_config: BusinessConfig;
+  
+  // Legacy single size support (for backward compatibility)
+  dimensions?: Dimension;
+  area_per_piece?: number; // calculated or manual override
+  weight_per_piece?: number; // in lbs (changed from kg)
+  
+  // Packaging & inventory
+  packaging: Packaging;
   stock: number;
-  images: string[];
+  unit_type: string; // sqft, piece, set, crate
+  
+  // Pricing structure
+  pricing: Pricing;
+  
+  // Product features
+  finish: string[];
   applications: string[];
-  status: 'active' | 'inactive' | 'out_of_stock';
+  special_features?: string[];
+  
+  // Legacy fields for compatibility
+  basePrice: number; // maps to pricing.price_per_unit
+  unit: string; // maps to unit_type
+  
+  // Media & status
+  images: string[];
+  status: 'active' | 'inactive' | 'discontinued' | 'out_of_stock';
+  
   createdAt: string;
   updatedAt: string;
 }

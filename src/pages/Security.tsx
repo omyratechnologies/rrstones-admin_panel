@@ -56,29 +56,33 @@ export function SecurityPage() {
   const { data: securityOverview } = useQuery({
     queryKey: ['security-overview'],
     queryFn: () => adminApi.getSecurityOverview(),
-    refetchInterval: 30000, // Refresh every 30 seconds
-    refetchOnWindowFocus: true,
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes instead of 30 seconds
+    refetchOnWindowFocus: false, // Disable refetch on window focus
+    staleTime: 2 * 60 * 1000, // Consider data stale after 2 minutes
   });
 
   // Activity logs
   const { data: activityLogs, isLoading: activityLoading } = useQuery({
     queryKey: ['activity-logs', activityFilters],
     queryFn: () => adminApi.getActivityLogs(activityFilters),
-    refetchInterval: 15000, // Refresh every 15 seconds
+    refetchInterval: 2 * 60 * 1000, // Refresh every 2 minutes instead of 15 seconds
+    staleTime: 1 * 60 * 1000, // Consider data stale after 1 minute
   });
 
   // Security logs  
   const { data: securityLogs, isLoading: securityLoading } = useQuery({
     queryKey: ['security-logs', securityFilters],
     queryFn: () => adminApi.getSecurityLogs(securityFilters),
-    refetchInterval: 15000, // Refresh every 15 seconds
+    refetchInterval: 2 * 60 * 1000, // Refresh every 2 minutes instead of 15 seconds
+    staleTime: 1 * 60 * 1000, // Consider data stale after 1 minute
   });
 
   // Active sessions
   const { data: activeSessions } = useQuery({
     queryKey: ['active-sessions'],
     queryFn: () => adminApi.getActiveSessions(),
-    refetchInterval: 30000,
+    refetchInterval: 3 * 60 * 1000, // Refresh every 3 minutes instead of 30 seconds
+    staleTime: 1 * 60 * 1000, // Consider data stale after 1 minute
   });
 
   // Security settings
@@ -128,10 +132,10 @@ export function SecurityPage() {
   };
 
   const getSecurityStatusColor = (score: number) => {
-    if (score >= 80) return 'text-red-600 bg-red-50';
-    if (score >= 60) return 'text-orange-600 bg-orange-50';
-    if (score >= 40) return 'text-yellow-600 bg-yellow-50';
-    return 'text-green-600 bg-green-50';
+    if (score >= 80) return 'text-error bg-error-lighter';
+    if (score >= 60) return 'text-warning bg-warning-lighter';
+    if (score >= 40) return 'text-warning bg-warning-lighter';
+    return 'text-success bg-success-lighter';
   };
 
   const getSecurityStatusText = (score: number) => {
@@ -143,20 +147,20 @@ export function SecurityPage() {
 
   const getLogTypeColor = (type: string) => {
     switch (type) {
-      case 'failed_login': return 'bg-red-100 text-red-800';
-      case 'suspicious_activity': return 'bg-orange-100 text-orange-800';
-      case 'access_denied': return 'bg-yellow-100 text-yellow-800';
-      case 'token_expired': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'failed_login': return 'bg-error-light text-error';
+      case 'suspicious_activity': return 'bg-warning-light text-orange-800';
+      case 'access_denied': return 'bg-warning-light text-warning';
+      case 'token_expired': return 'bg-primary-light text-primary';
+      default: return 'bg-muted text-foreground';
     }
   };
 
   const getActionTypeColor = (action: string) => {
-    if (action.includes('create') || action.includes('add')) return 'bg-green-100 text-green-800';
-    if (action.includes('delete') || action.includes('remove')) return 'bg-red-100 text-red-800';
-    if (action.includes('update') || action.includes('edit')) return 'bg-blue-100 text-blue-800';
-    if (action.includes('login') || action.includes('auth')) return 'bg-purple-100 text-purple-800';
-    return 'bg-gray-100 text-gray-800';
+    if (action.includes('create') || action.includes('add')) return 'bg-success-light text-success';
+    if (action.includes('delete') || action.includes('remove')) return 'bg-error-light text-error';
+    if (action.includes('update') || action.includes('edit')) return 'bg-primary-light text-primary';
+    if (action.includes('login') || action.includes('auth')) return 'bg-info-light text-purple-800';
+    return 'bg-muted text-foreground';
   };
 
   return (
@@ -165,7 +169,7 @@ export function SecurityPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Shield className="h-8 w-8 text-blue-600" />
+            <Shield className="h-8 w-8 text-primary" />
             Security Center
           </h1>
           <p className="text-muted-foreground">
@@ -174,7 +178,7 @@ export function SecurityPage() {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
             <span className="text-sm text-muted-foreground">Live monitoring</span>
           </div>
           <div className="text-sm text-muted-foreground">
@@ -192,7 +196,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Security Risk</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <AlertTriangle className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -207,7 +211,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Failed Logins</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
+            <XCircle className="h-4 w-4 text-error" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{securityMetrics.totalFailedLogins}</div>
@@ -218,7 +222,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-            <Monitor className="h-4 w-4 text-blue-600" />
+            <Monitor className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{securityMetrics.activeSessions}</div>
@@ -229,7 +233,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Blocked IPs</CardTitle>
-            <Ban className="h-4 w-4 text-red-600" />
+            <Ban className="h-4 w-4 text-error" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{securityMetrics.blockedIps}</div>
@@ -254,7 +258,7 @@ export function SecurityPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-orange-600" />
+                  <AlertCircle className="h-5 w-5 text-warning" />
                   Recent Security Alerts
                 </CardTitle>
                 <CardDescription>Latest security incidents and threats</CardDescription>
@@ -264,7 +268,7 @@ export function SecurityPage() {
                   {(securityLogs?.data || []).slice(0, 5).map((log: SecurityLog) => (
                     <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
+                        <AlertTriangle className="h-4 w-4 text-warning" />
                         <div>
                           <p className="font-medium">{log.event}</p>
                           <p className="text-sm text-muted-foreground">{log.source}</p>
@@ -293,7 +297,7 @@ export function SecurityPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-blue-600" />
+                  <Activity className="h-5 w-5 text-primary" />
                   Recent Activities
                 </CardTitle>
                 <CardDescription>Latest user actions and system events</CardDescription>
@@ -303,7 +307,7 @@ export function SecurityPage() {
                   {(activityLogs?.data || []).slice(0, 5).map((log: ActivityLog) => (
                     <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Activity className="h-4 w-4 text-blue-600" />
+                        <Activity className="h-4 w-4 text-primary" />
                         <div>
                           <p className="font-medium">{log.action}</p>
                           <p className="text-sm text-muted-foreground">{log.user}</p>
@@ -358,12 +362,12 @@ export function SecurityPage() {
                   </div>
                 </div>
                 <div>
-                  <Label>Action Type</Label>
+                  <Label htmlFor="action-type-select">Action Type</Label>
                   <Select 
                     value={activityFilters.action} 
                     onValueChange={(value) => setActivityFilters(prev => ({ ...prev, action: value }))}
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger id="action-type-select" className="w-40">
                       <SelectValue placeholder="All actions" />
                     </SelectTrigger>
                     <SelectContent>
@@ -376,12 +380,12 @@ export function SecurityPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label>Time Range</Label>
+                  <Label htmlFor="time-range-select">Time Range</Label>
                   <Select 
                     value={activityFilters.timeRange} 
                     onValueChange={(value) => setActivityFilters(prev => ({ ...prev, timeRange: value }))}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger id="time-range-select" className="w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -412,7 +416,7 @@ export function SecurityPage() {
                   (activityLogs?.data || []).map((log: ActivityLog) => (
                     <div key={log.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
                       <div className="flex items-center gap-4">
-                        <Activity className="h-4 w-4 text-blue-600" />
+                        <Activity className="h-4 w-4 text-primary" />
                         <div>
                           <p className="font-medium">{log.action}</p>
                           <p className="text-sm text-muted-foreground">
@@ -453,7 +457,7 @@ export function SecurityPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <AlertTriangle className="h-5 w-5 text-error" />
                 Security Logs
               </CardTitle>
               <CardDescription>Monitor security incidents and threats</CardDescription>
@@ -475,12 +479,12 @@ export function SecurityPage() {
                   </div>
                 </div>
                 <div>
-                  <Label>Event Type</Label>
+                  <Label htmlFor="event-type-select">Event Type</Label>
                   <Select 
                     value={securityFilters.type} 
                     onValueChange={(value) => setSecurityFilters(prev => ({ ...prev, type: value }))}
                   >
-                    <SelectTrigger className="w-44">
+                    <SelectTrigger id="event-type-select" className="w-44">
                       <SelectValue placeholder="All events" />
                     </SelectTrigger>
                     <SelectContent>
@@ -529,7 +533,7 @@ export function SecurityPage() {
                   (securityLogs?.data || []).map((log: SecurityLog) => (
                     <div key={log.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
                       <div className="flex items-center gap-4">
-                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                        <AlertTriangle className="h-4 w-4 text-error" />
                         <div>
                           <p className="font-medium">{log.event}</p>
                           <p className="text-sm text-muted-foreground">
@@ -588,7 +592,7 @@ export function SecurityPage() {
                 {(activeSessions?.data?.sessions || []).map((session: Session) => (
                   <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
-                      <Monitor className="h-4 w-4 text-blue-600" />
+                      <Monitor className="h-4 w-4 text-primary" />
                       <div>
                         <p className="font-medium">{session.userEmail}</p>
                         <p className="text-sm text-muted-foreground">

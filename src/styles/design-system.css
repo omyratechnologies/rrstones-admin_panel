@@ -1,0 +1,317 @@
+/**
+ * Comprehensive Design System - Semantic Color Tokens
+ * This file defines all semantic color tokens that replace hardcoded colors
+ */
+
+@layer base {
+  :root {
+    /* Base Design System Colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    /* Primary Brand Colors - Will be overridden by settings */
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --primary-hover: 221.2 83.2% 48.3%;
+    --primary-light: 221.2 83.2% 88.3%;
+    --primary-lighter: 221.2 83.2% 95.3%;
+    
+    /* Secondary Colors */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary-hover: 210 40% 91%;
+    
+    /* Semantic Status Colors */
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 355.7 100% 97.3%;
+    --success-light: 142.1 76.2% 91.3%;
+    --success-lighter: 142.1 76.2% 96.3%;
+    --success-hover: 142.1 76.2% 31.3%;
+    
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 26 83.3% 14.1%;
+    --warning-light: 47.9 95.8% 88.1%;
+    --warning-lighter: 47.9 95.8% 95.1%;
+    --warning-hover: 47.9 95.8% 48.1%;
+    --warning-dark: 47.9 95.8% 43.1%;
+    
+    --error: 0 84.2% 60.2%;
+    --error-foreground: 210 40% 98%;
+    --error-light: 0 84.2% 85.2%;
+    --error-lighter: 0 84.2% 95.2%;
+    --error-hover: 0 84.2% 55.2%;
+    
+    --info: 198.6 88.7% 48.4%;
+    --info-foreground: 210 40% 98%;
+    --info-light: 198.6 88.7% 83.4%;
+    --info-lighter: 198.6 88.7% 93.4%;
+    --info-hover: 198.6 88.7% 43.4%;
+    
+    /* Neutral Grays */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    
+    /* Borders & Inputs */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    
+    /* Destructive Colors */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Theme Variables */
+    --radius: 0.5rem;
+    
+    /* Granite Management Colors */
+    --granite-variant: var(--primary);
+    --granite-variant-hover: var(--primary-hover);
+    --granite-variant-light: var(--primary-light);
+    --granite-variant-lighter: var(--primary-lighter);
+    --granite-variant-dark: var(--primary);
+    
+    --granite-specific: 271.5 81.3% 55.9%; /* Purple */
+    --granite-specific-hover: 271.5 81.3% 50.9%;
+    --granite-specific-light: 271.5 81.3% 90.9%;
+    --granite-specific-lighter: 271.5 81.3% 95.9%;
+    --granite-specific-dark: 271.5 81.3% 45.9%;
+    
+    --granite-product: var(--success);
+    --granite-product-hover: var(--success-hover);
+    --granite-product-light: var(--success-light);
+    --granite-product-lighter: var(--success-lighter);
+    --granite-product-dark: var(--success);
+    
+    --granite-value: 24.6 95% 53.1%; /* Orange */
+    
+    /* Status Colors for Orders/Users */
+    --status-active: var(--success);
+    --status-inactive: var(--muted-foreground);
+    --status-pending: var(--warning);
+    --status-completed: var(--success);
+    --status-cancelled: var(--error);
+    --status-processing: var(--info);
+    
+    /* Special Purpose Colors */
+    --hover-overlay: 0 0% 0% / 0.05;
+    --focus-ring: var(--ring);
+    --selection: var(--primary-light);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --primary-hover: 217.2 91.2% 54.8%;
+    --primary-light: 217.2 91.2% 20.8%;
+    --primary-lighter: 217.2 91.2% 12.8%;
+    
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --secondary-hover: 217.2 32.6% 22.5%;
+    
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 144.9 80.4% 10%;
+    --success-light: 142.1 76.2% 20.3%;
+    --success-lighter: 142.1 76.2% 12.3%;
+    
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 26 83.3% 14.1%;
+    --warning-light: 47.9 95.8% 20.1%;
+    --warning-lighter: 47.9 95.8% 12.1%;
+    
+    --error: 0 72.2% 50.6%;
+    --error-foreground: 210 40% 98%;
+    --error-light: 0 84.2% 25.2%;
+    --error-lighter: 0 84.2% 15.2%;
+    
+    --info: 198.6 88.7% 48.4%;
+    --info-foreground: 210 40% 98%;
+    --info-light: 198.6 88.7% 23.4%;
+    --info-lighter: 198.6 88.7% 13.4%;
+    
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Dark mode specific overrides */
+    --granite-variant: var(--primary);
+    --granite-specific: 271.5 81.3% 65.9%;
+    --granite-product: var(--success);
+    --granite-value: 24.6 95% 63.1%;
+    
+    --hover-overlay: 255 255 255 / 0.1;
+  }
+}
+
+@layer components {
+  /* Semantic Button Classes */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 
+           border border-primary focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 
+           border border-border focus:ring-2 focus:ring-secondary/20;
+  }
+  
+  .btn-success {
+    @apply bg-success text-success-foreground hover:bg-success/90 
+           border border-success focus:ring-2 focus:ring-success/20;
+  }
+  
+  .btn-warning {
+    @apply bg-warning text-warning-foreground hover:bg-warning/90 
+           border border-warning focus:ring-2 focus:ring-warning/20;
+  }
+  
+  .btn-error {
+    @apply bg-error text-error-foreground hover:bg-error/90 
+           border border-error focus:ring-2 focus:ring-error/20;
+  }
+  
+  .btn-info {
+    @apply bg-info text-info-foreground hover:bg-info/90 
+           border border-info focus:ring-2 focus:ring-info/20;
+  }
+  
+  /* Status Badge Classes */
+  .badge-success {
+    @apply bg-success-lighter text-success border border-success-light;
+  }
+  
+  .badge-warning {
+    @apply bg-warning-lighter text-warning-foreground border border-warning-light;
+  }
+  
+  .badge-error {
+    @apply bg-error-lighter text-error-foreground border border-error-light;
+  }
+  
+  .badge-info {
+    @apply bg-info-lighter text-info-foreground border border-info-light;
+  }
+  
+  .badge-primary {
+    @apply bg-primary-lighter text-primary border border-primary-light;
+  }
+  
+  /* Granite Management Specific */
+  .granite-variant {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .granite-specific {
+    @apply text-purple-600 bg-purple-50 border-purple-200;
+  }
+  
+  .granite-product {
+    @apply text-green-600 bg-green-50 border-green-200;
+  }
+  
+  .granite-value {
+    @apply text-orange-600 bg-orange-50 border-orange-200;
+  }
+  
+  /* Status Classes for Orders */
+  .status-pending {
+    @apply bg-warning-lighter text-warning-foreground border border-warning-light;
+  }
+  
+  .status-completed {
+    @apply bg-success-lighter text-success-foreground border border-success-light;
+  }
+  
+  .status-processing {
+    @apply bg-info-lighter text-info-foreground border border-info-light;
+  }
+  
+  .status-cancelled {
+    @apply bg-error-lighter text-error-foreground border border-error-light;
+  }
+  
+  /* Card and Container Classes */
+  .card-primary {
+    @apply bg-primary-lighter border border-primary-light;
+  }
+  
+  .card-success {
+    @apply bg-success-lighter border border-success-light;
+  }
+  
+  .card-warning {
+    @apply bg-warning-lighter border border-warning-light;
+  }
+  
+  .card-error {
+    @apply bg-error-lighter border border-error-light;
+  }
+  
+  .card-info {
+    @apply bg-info-lighter border border-info-light;
+  }
+  
+  /* Hover States */
+  .hover-primary {
+    @apply hover:bg-primary-lighter hover:border-primary-light transition-colors;
+  }
+  
+  .hover-success {
+    @apply hover:bg-success-lighter hover:border-success-light transition-colors;
+  }
+  
+  .hover-warning {
+    @apply hover:bg-warning-lighter hover:border-warning-light transition-colors;
+  }
+  
+  .hover-error {
+    @apply hover:bg-error-lighter hover:border-error-light transition-colors;
+  }
+}
+
+/* Loading and Animation States */
+@layer utilities {
+  .animate-pulse-primary {
+    animation: pulse-primary 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-primary {
+    0%, 100% {
+      background-color: hsl(var(--primary-lighter));
+    }
+    50% {
+      background-color: hsl(var(--primary-light));
+    }
+  }
+  
+  /* Focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary;
+  }
+  
+  /* Selection states */
+  .selection-primary {
+    @apply selection:bg-primary-light selection:text-primary-foreground;
+  }
+}

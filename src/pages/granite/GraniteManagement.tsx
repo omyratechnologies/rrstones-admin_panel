@@ -19,9 +19,40 @@ import { graniteApi } from '../../services/graniteApi';
 import { uploadPublicImage } from '../../services/uploadService';
 import type { GraniteVariant, SpecificGraniteVariant, GraniteProduct } from '../../types';
 import { EnhancedFormModal } from '../../components/ui/enhanced-form-modal';
+import ModernProductForm from '../../components/forms/ModernProductForm';
+import ModernProductDetails from '../../components/forms/ModernProductDetails';
 import { ConfirmDialog } from '../../components/ui/confirm-dialog';
 import { ImportExportModal } from '../../components/ui/import-export-modal';
 import DetailedViewModal from '../../components/ui/detailed-view-modal';
+import { 
+  StatusBadge, 
+  SemanticCard,
+  LoadingSpinner 
+} from '../../components/ui/semantic-colors';
+
+// Helper to invalidate all product queries regardless of their specific parameters
+const invalidateProductQueries = (queryClient: any) => {
+  queryClient.invalidateQueries({ 
+    predicate: (query: any) => 
+      Array.isArray(query.queryKey) && query.queryKey[0] === 'products'
+  });
+  queryClient.invalidateQueries({ 
+    predicate: (query: any) => 
+      Array.isArray(query.queryKey) && query.queryKey[0] === 'allProducts'
+  });
+};
+
+// Helper to invalidate all specific variant queries
+const invalidateSpecificVariantQueries = (queryClient: any) => {
+  queryClient.invalidateQueries({ 
+    predicate: (query: any) => 
+      Array.isArray(query.queryKey) && query.queryKey[0] === 'specificVariants'
+  });
+  queryClient.invalidateQueries({ 
+    predicate: (query: any) => 
+      Array.isArray(query.queryKey) && query.queryKey[0] === 'allSpecificVariants'
+  });
+};
 
 export default function GraniteManagement() {
   // Core state
@@ -144,7 +175,7 @@ export default function GraniteManagement() {
   const createSpecificVariantMutation = useMutation({
     mutationFn: graniteApi.createSpecificVariant,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['specificVariants'] });
+      invalidateSpecificVariantQueries(queryClient);
       notify('Specific variant created successfully!');
       setShowModal({ type: null, mode: 'create' });
     },
@@ -154,8 +185,7 @@ export default function GraniteManagement() {
   const createProductMutation = useMutation({
     mutationFn: graniteApi.createProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['allProducts'] });
+      invalidateProductQueries(queryClient);
       notify('Product created successfully!');
       setShowModal({ type: null, mode: 'create' });
     },
@@ -176,7 +206,7 @@ export default function GraniteManagement() {
   const updateSpecificVariantMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => graniteApi.updateSpecificVariant(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['specificVariants'] });
+      invalidateSpecificVariantQueries(queryClient);
       notify('Specific variant updated successfully!');
       setShowModal({ type: null, mode: 'create' });
     },
@@ -186,8 +216,7 @@ export default function GraniteManagement() {
   const updateProductMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => graniteApi.updateProduct(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['allProducts'] });
+      invalidateProductQueries(queryClient);
       notify('Product updated successfully!');
       setShowModal({ type: null, mode: 'create' });
     },
@@ -210,15 +239,17 @@ export default function GraniteManagement() {
     onSuccess: (_, { type }) => {
       // Invalidate queries with proper key structure
       if (type === 'specificVariant') {
-        queryClient.invalidateQueries({ queryKey: ['specificVariants'] });
+        invalidateSpecificVariantQueries(queryClient);
+        // Also invalidate products as they depend on specific variants
+        invalidateProductQueries(queryClient);
       } else if (type === 'product') {
-        queryClient.invalidateQueries({ queryKey: ['products'] });
-        queryClient.invalidateQueries({ queryKey: ['allProducts'] });
+        invalidateProductQueries(queryClient);
       } else {
         queryClient.invalidateQueries({ queryKey: [`${type}s`] });
       }
       notify(`${type} deleted successfully!`);
       setShowModal({ type: null, mode: 'create' });
+      setDependencyInfo(null);
     },
     onError: (error: any) => {
       // Handle hierarchy validation errors from backend
@@ -293,7 +324,8 @@ export default function GraniteManagement() {
         response = await graniteApi.checkSpecificVariantDependencies(item._id);
       }
       
-      setDependencyInfo(response.data || null);
+      // Response is already the dependency info object (apiService.get extracts response.data)
+      setDependencyInfo(response as any || null);
     } catch (error) {
       console.error('Error checking dependencies:', error);
       setDependencyInfo({ 
@@ -318,46 +350,105 @@ export default function GraniteManagement() {
       subcategory: product.subcategory || '',
       status: product.status || 'active',
       
-      // Nested dimensions
-      length: product.dimensions?.length || product.length || '',
-      width: product.dimensions?.width || product.width || '',
-      thickness: product.dimensions?.thickness || product.thickness || '',
+      // Size variants handling
+      has_multiple_sizes: product.has_multiple_sizes || false,
+      size_variants: product.size_variants || [],
       
-      // Nested packaging
-      pieces_per_crate: product.packaging?.pieces_per_crate || product.pieces_per_crate || '',
-      pieces_per_set: product.packaging?.pieces_per_set || product.pieces_per_set || '',
-      crate_weight: product.packaging?.crate_weight || product.crate_weight || '',
+      // Flattened dimensions for single size products
+      dimensions: product.dimensions || { length: '', width: '', thickness: '', unit: 'inches' },
       
-      // Nested pricing
-      price_per_unit: product.pricing?.price_per_unit || product.price_per_unit || product.basePrice || '',
-      price_per_sqft: product.pricing?.price_per_sqft || product.price_per_sqft || '',
-      price_per_piece: product.pricing?.price_per_piece || product.price_per_piece || '',
-      price_per_set: product.pricing?.price_per_set || product.price_per_set || '',
-      currency: product.pricing?.currency || product.currency || 'USD',
+      // Keep nested business_config structure
+      business_config: product.business_config || {
+        pieces_per_crate: 10,
+        filler_rate: 0.5,
+        max_shipping_weight: 48000,
+        weight_unit: 'lbs'
+      },
+      
+      // Keep nested packaging structure  
+      packaging: product.packaging || {
+        pieces_per_crate: 10,
+        pieces_per_set: '',
+        crate_weight: '',
+        pieces_weight: ''
+      },
+      
+      // Keep nested pricing structure
+      pricing: product.pricing || {
+        price_per_unit: product.basePrice || '',
+        price_per_sqft: '',
+        price_per_piece: '',
+        price_per_set: '',
+        currency: 'USD'
+      },
       
       // Other fields
       area_per_piece: product.area_per_piece || product.calculatedAreaPerPiece || '',
       weight_per_piece: product.weight_per_piece || '',
-      stock: product.stock || '',
+      stock: product.stock || 0,
       unit_type: product.unit_type || product.unit || 'sqft',
       
       // Arrays - handle differently based on field type
-      // For multiselect fields (finish, applications), keep as arrays
-      // For text fields (special_features), convert to comma-separated string
-      finish: Array.isArray(product.finish) ? product.finish : (product.finish ? [product.finish] : []),
-      applications: Array.isArray(product.applications) ? product.applications : (product.applications ? [product.applications] : []),
-      special_features: Array.isArray(product.special_features) ? product.special_features.join(', ') : (product.special_features || ''),
+      finish: Array.isArray(product.finish) 
+        ? product.finish.map((f: any) => typeof f === 'object' && f ? (f.value || f.name || f.label || String(f)) : String(f || ''))
+        : (product.finish ? [typeof product.finish === 'object' && product.finish ? (product.finish.value || product.finish.name || product.finish.label || String(product.finish)) : String(product.finish)] : []),
+      applications: Array.isArray(product.applications) 
+        ? product.applications.map((a: any) => typeof a === 'object' && a ? (a.value || a.name || a.label || String(a)) : String(a || ''))
+        : (product.applications ? [typeof product.applications === 'object' && product.applications ? (product.applications.value || product.applications.name || product.applications.label || String(product.applications)) : String(product.applications)] : []),
+      special_features: Array.isArray(product.special_features) 
+        ? product.special_features.map((sf: any) => typeof sf === 'object' && sf ? (sf.value || sf.name || sf.label || String(sf)) : String(sf || ''))
+        : (product.special_features ? [typeof product.special_features === 'object' && product.special_features ? (product.special_features.value || product.special_features.name || product.special_features.label || String(product.special_features)) : String(product.special_features)] : []),
       
-      // Legacy compatibility
-      basePrice: product.basePrice || product.pricing?.price_per_unit || product.price_per_unit || '',
+      // Legacy compatibility - individual fields for backward compatibility
+      basePrice: product.basePrice || product.pricing?.price_per_unit || '',
       unit: product.unit || product.unit_type || 'sqft',
       
-      // Images - don't include in edit form as they're handled separately
-      // image1, image2, image3, image4 will be empty for editing
+      // Images - preserve existing images URLs for display
+      images: product.images || [],
+      
+      // Keep empty for new uploads in edit mode
+      imageFiles: []
     };
     
     return transformed;
   };
+
+  const transformVariantForEdit = (variant: any) => {
+    if (!variant) return {};
+    
+    return {
+      name: String(variant.name || ''),
+      description: String(variant.description || ''),
+      // Don't include image in form edit - handled separately
+    };
+  };
+
+  const transformSpecificVariantForEdit = (specificVariant: any) => {
+    if (!specificVariant) return {};
+    
+    return {
+      name: String(specificVariant.name || ''),
+      description: String(specificVariant.description || ''),
+      // Don't include image in form edit - handled separately
+    };
+  };
+
+  // Memoize the transformed data to prevent unnecessary re-renders
+  const memoizedInitialData = useMemo(() => {
+    if (showModal.mode === 'edit' && showModal.item) {
+      switch (showModal.type) {
+        case 'product':
+          return transformProductForEdit(showModal.item);
+        case 'variant':
+          return transformVariantForEdit(showModal.item);
+        case 'specificVariant':
+          return transformSpecificVariantForEdit(showModal.item);
+        default:
+          return showModal.item;
+      }
+    }
+    return undefined;
+  }, [showModal.mode, showModal.type, showModal.item]);
 
   const handleCreate = async (data: any) => {
     try {
@@ -613,54 +704,96 @@ export default function GraniteManagement() {
       // Prepare final data for API call
       let finalData;
       if (showModal.type === 'product') {
-        // Transform flat data back to nested structure for API
-        finalData = {
-          // Basic fields
-          name: processedData.name,
-          category: processedData.category,
-          subcategory: processedData.subcategory,
-          status: processedData.status,
-          
-          // Nested dimensions
-          dimensions: {
-            length: processedData.length,
-            width: processedData.width,
-            thickness: processedData.thickness,
-            unit: 'inches'
-          },
-          
-          // Nested packaging
-          packaging: {
-            pieces_per_crate: processedData.pieces_per_crate,
-            ...(processedData.pieces_per_set && { pieces_per_set: processedData.pieces_per_set }),
-            ...(processedData.crate_weight && { crate_weight: processedData.crate_weight })
-          },
-          
-          // Nested pricing
-          pricing: {
-            price_per_unit: processedData.price_per_unit,
-            currency: processedData.currency,
-            ...(processedData.price_per_sqft && { price_per_sqft: processedData.price_per_sqft }),
-            ...(processedData.price_per_piece && { price_per_piece: processedData.price_per_piece }),
-            ...(processedData.price_per_set && { price_per_set: processedData.price_per_set })
-          },
-          
-          // Other fields
-          ...(processedData.area_per_piece && { area_per_piece: processedData.area_per_piece }),
-          ...(processedData.weight_per_piece && { weight_per_piece: processedData.weight_per_piece }),
-          stock: processedData.stock,
-          unit_type: processedData.unit_type,
-          finish: processedData.finish,
-          applications: processedData.applications,
-          special_features: processedData.special_features,
-          
-          // Legacy compatibility
-          basePrice: processedData.basePrice,
-          unit: processedData.unit,
-          
-          // Include images if uploaded
-          ...(processedData.images && { images: processedData.images })
-        };
+        // Check if this is a multi-size product with size variants
+        if (processedData.has_multiple_sizes && processedData.size_variants?.length > 0) {
+          // For multi-size products, use the new structure
+          finalData = {
+            // Basic fields
+            name: processedData.name,
+            category: processedData.category,
+            subcategory: processedData.subcategory,
+            status: processedData.status,
+            
+            // Multi-size product structure
+            has_multiple_sizes: true,
+            size_variants: processedData.size_variants,
+            
+            // Business config (if provided)
+            ...(processedData.business_config && { business_config: processedData.business_config }),
+            
+            // Packaging (if provided)
+            ...(processedData.packaging && { packaging: processedData.packaging }),
+            
+            // Pricing (if provided)
+            ...(processedData.pricing && { pricing: processedData.pricing }),
+            
+            // Other fields
+            stock: processedData.stock || 0,
+            unit_type: processedData.unit_type,
+            finish: processedData.finish,
+            applications: processedData.applications,
+            special_features: processedData.special_features,
+            
+            // Legacy compatibility
+            basePrice: processedData.basePrice || processedData.pricing?.price_per_unit,
+            unit: processedData.unit || processedData.unit_type || 'sqft',
+            
+            // Include images if uploaded
+            ...(processedData.images && { images: processedData.images }),
+            
+            // Include variant ID if present
+            ...(processedData.variantSpecificId && { variantSpecificId: processedData.variantSpecificId })
+          };
+        } else {
+          // For single-size products, use the old flat structure
+          finalData = {
+            // Basic fields
+            name: processedData.name,
+            category: processedData.category,
+            subcategory: processedData.subcategory,
+            status: processedData.status,
+            
+            // Nested dimensions for single size products
+            dimensions: {
+              length: processedData.length || processedData.dimensions?.length,
+              width: processedData.width || processedData.dimensions?.width,
+              thickness: processedData.thickness || processedData.dimensions?.thickness,
+              unit: 'inches'
+            },
+            
+            // Nested packaging
+            packaging: {
+              pieces_per_crate: processedData.pieces_per_crate || processedData.packaging?.pieces_per_crate,
+              ...(processedData.pieces_per_set && { pieces_per_set: processedData.pieces_per_set }),
+              ...(processedData.crate_weight && { crate_weight: processedData.crate_weight })
+            },
+            
+            // Nested pricing
+            pricing: {
+              price_per_unit: processedData.price_per_unit || processedData.pricing?.price_per_unit,
+              currency: processedData.currency || processedData.pricing?.currency || 'USD',
+              ...(processedData.price_per_sqft && { price_per_sqft: processedData.price_per_sqft }),
+              ...(processedData.price_per_piece && { price_per_piece: processedData.price_per_piece }),
+              ...(processedData.price_per_set && { price_per_set: processedData.price_per_set })
+            },
+            
+            // Other fields
+            ...(processedData.area_per_piece && { area_per_piece: processedData.area_per_piece }),
+            ...(processedData.weight_per_piece && { weight_per_piece: processedData.weight_per_piece }),
+            stock: processedData.stock,
+            unit_type: processedData.unit_type,
+            finish: processedData.finish,
+            applications: processedData.applications,
+            special_features: processedData.special_features,
+            
+            // Legacy compatibility
+            basePrice: processedData.basePrice,
+            unit: processedData.unit,
+            
+            // Include images if uploaded
+            ...(processedData.images && { images: processedData.images })
+          };
+        }
       } else {
         finalData = processedData;
       }
@@ -776,23 +909,23 @@ export default function GraniteManagement() {
 
   if (loadingVariants) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading granite management...</p>
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading granite management...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
+    <div className="min-h-screen bg-background p-2 sm:p-4 lg:p-6">
       {/* Enhanced Header - Mobile Responsive */}
       <div className="mb-4 sm:mb-6 lg:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🧱 Granite Management</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your granite variants, specific variants, and products</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">🧱 Granite Management</h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your granite variants, specific variants, and products</p>
           </div>
           <div className="flex gap-2 sm:gap-3">
             <Button 
@@ -809,7 +942,7 @@ export default function GraniteManagement() {
       </div>
 
       {/* Mobile-Responsive Navigation Breadcrumb */}
-      <Card className="mb-4 sm:mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100">
+      <SemanticCard variant="primary" className="mb-4 sm:mb-6">
         <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Navigation Steps - Mobile Stack, Desktop Row */}
@@ -821,35 +954,35 @@ export default function GraniteManagement() {
                   setSelectedVariant(null);
                   setSelectedSpecificVariant(null);
                 }}
-                className={`${!selectedVariant ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-blue-100'} transition-all justify-start sm:justify-center`}
+                className={`${!selectedVariant ? 'bg-granite-variant hover:bg-granite-variant-hover text-white' : 'hover:bg-granite-variant-light'} transition-all justify-start sm:justify-center`}
               >
                 🧱 Granite Variants
-                {!selectedVariant && <Badge className="ml-2 bg-white text-blue-600">{variantsArray.length}</Badge>}
+                {!selectedVariant && <Badge className="ml-2 bg-card text-granite-variant">{variantsArray.length}</Badge>}
               </Button>
               
               {selectedVariant && (
                 <>
-                  <span className="hidden sm:inline text-2xl text-gray-300">→</span>
+                  <span className="hidden sm:inline text-2xl text-muted">→</span>
                   <Button 
                     variant={!selectedSpecificVariant ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setSelectedSpecificVariant(null)}
-                    className={`${!selectedSpecificVariant ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'hover:bg-purple-100'} transition-all justify-start sm:justify-center`}
+                    className={`${!selectedSpecificVariant ? 'bg-granite-specific hover:bg-granite-specific-hover text-white' : 'hover:bg-granite-specific-light'} transition-all justify-start sm:justify-center`}
                   >
                     💎 {selectedVariant.name} 
                     <span className="hidden sm:inline"> Variants</span>
-                    {!selectedSpecificVariant && <Badge className="ml-2 bg-white text-purple-600">{specificVariantsArray.length}</Badge>}
+                    {!selectedSpecificVariant && <Badge className="ml-2 bg-card text-granite-specific">{specificVariantsArray.length}</Badge>}
                   </Button>
                 </>
               )}
               
               {selectedSpecificVariant && (
                 <>
-                  <span className="hidden sm:inline text-2xl text-gray-300">→</span>
-                  <div className="bg-green-600 text-white px-3 py-2 rounded-lg font-medium text-sm">
+                  <span className="hidden sm:inline text-2xl text-muted">→</span>
+                  <div className="bg-granite-product text-white px-3 py-2 rounded-lg font-medium text-sm">
                     📦 {selectedSpecificVariant.name} 
                     <span className="hidden sm:inline"> Products</span>
-                    <Badge className="ml-2 bg-white text-green-600">{productsArray.length}</Badge>
+                    <Badge className="ml-2 bg-card text-granite-product">{productsArray.length}</Badge>
                   </div>
                 </>
               )}
@@ -901,7 +1034,7 @@ export default function GraniteManagement() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </SemanticCard>
 
       {/* Main Content Area - Simple Hierarchical View */}
       {!selectedVariant ? (
@@ -909,30 +1042,30 @@ export default function GraniteManagement() {
         <div className="space-y-4 sm:space-y-6">
           {/* Mobile-Responsive Quick Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-blue-600">{variantsArray.length}</div>
-                <div className="text-xs sm:text-sm text-blue-700">🧱 Base Variants</div>
+            <SemanticCard variant="primary" className="text-center">
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-xl sm:text-2xl font-bold text-granite-variant">{variantsArray.length}</div>
+                <div className="text-xs sm:text-sm text-granite-variant-dark">🧱 Base Variants</div>
               </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-purple-600">{allSpecificVariantsData?.data?.length || specificVariantsData?.data?.length || 0}</div>
-                <div className="text-xs sm:text-sm text-purple-700">💎 Specific Variants</div>
+            </SemanticCard>
+            <SemanticCard variant="info" className="text-center">
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-xl sm:text-2xl font-bold text-granite-specific">{allSpecificVariantsData?.data?.length || specificVariantsData?.data?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-granite-specific-dark">💎 Specific Variants</div>
               </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-green-600">{allProductsData?.data?.length || productsData?.data?.length || 0}</div>
-                <div className="text-xs sm:text-sm text-green-700">📦 Total Products</div>
+            </SemanticCard>
+            <SemanticCard variant="success" className="text-center">
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-xl sm:text-2xl font-bold text-granite-product">{allProductsData?.data?.length || productsData?.data?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-granite-product-dark">📦 Total Products</div>
               </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 col-span-2 sm:col-span-1">
-              <CardContent className="p-3 sm:p-4 text-center">
-                <div className="text-xl sm:text-2xl font-bold text-orange-600">₹{analytics.totalValue?.toLocaleString() || '0'}</div>
-                <div className="text-xs sm:text-sm text-orange-700">💰 Total Value</div>
+            </SemanticCard>
+            <SemanticCard variant="warning" className="col-span-2 sm:col-span-1 text-center">
+              <CardContent className="p-3 sm:p-4">
+                <div className="text-xl sm:text-2xl font-bold text-warning">₹{analytics.totalValue?.toLocaleString() || '0'}</div>
+                <div className="text-xs sm:text-sm text-warning-dark">💰 Total Value</div>
               </CardContent>
-            </Card>
+            </SemanticCard>
           </div>
 
           {/* Mobile-Responsive Search & Filter */}
@@ -940,7 +1073,7 @@ export default function GraniteManagement() {
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="🔍 Search granite variants..."
                     value={searchTerm}
@@ -961,11 +1094,11 @@ export default function GraniteManagement() {
             {getFilteredVariants.map((variant: GraniteVariant) => (
               <Card 
                 key={variant._id} 
-                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 hover:scale-105 border-2 hover:border-blue-300"
+                className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 hover:scale-105 border-2 hover:border-primary-light"
                 onClick={() => setSelectedVariant(variant)}
               >
                 {/* Mobile-Optimized Image Section */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden rounded-t-lg">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-background to-muted overflow-hidden rounded-t-lg">
                   <img
                     src={variant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNmI3MjgwIj7wn6e1IEdyYW5pdGUgVmFyaWFudDwvdGV4dD4KPHN2Zz4K'}
                     alt={variant.name}
@@ -980,7 +1113,7 @@ export default function GraniteManagement() {
                     <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
                       <div className="text-white text-center">
                         <div className="text-xs sm:text-sm font-medium">Click to explore</div>
-                        <div className="text-xs text-gray-200 hidden sm:block">View specific variants & products</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">View specific variants & products</div>
                       </div>
                     </div>
                     
@@ -989,18 +1122,18 @@ export default function GraniteManagement() {
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-white/90 hover:bg-white touch-manipulation"
+                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-card/90 hover:bg-card touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           openEditModal('variant', variant);
                         }}
                       >
-                        <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-gray-700" />
+                        <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-red-500/90 hover:bg-red-500 touch-manipulation"
+                        className="h-8 w-8 sm:h-8 sm:w-8 p-0 bg-error hover:bg-error-hover touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDeleteModal('variant', variant);
@@ -1017,16 +1150,16 @@ export default function GraniteManagement() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">
                         🧱 {variant.name}
                       </h3>
-                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {variant.description || 'Premium granite variant with excellent quality and durability'}
                       </p>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                      <div className="text-xs text-gray-500">
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <div className="text-xs text-muted-foreground">
                         <span className="hidden sm:inline">Created: </span>
                         {new Date(variant.createdAt).toLocaleDateString('en-US', { 
                           month: 'short', 
@@ -1034,9 +1167,9 @@ export default function GraniteManagement() {
                           year: window.innerWidth < 640 ? '2-digit' : 'numeric'
                         })}
                       </div>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                      <StatusBadge status="success" className="text-xs">
                         ✅ Active
-                      </Badge>
+                      </StatusBadge>
                     </div>
                   </div>
                 </CardContent>
@@ -1045,15 +1178,15 @@ export default function GraniteManagement() {
 
             {/* Mobile-Friendly Add New Variant Card */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gradient-to-br from-gray-50 to-blue-50 touch-manipulation"
+              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-muted hover:border-primary bg-gradient-to-br from-background to-primary-lighter touch-manipulation"
               onClick={() => openCreateModal('variant')}
             >
               <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full min-h-[180px] sm:min-h-[200px]">
-                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 group-hover:text-blue-500 transition-colors mb-3 sm:mb-4" />
-                <h3 className="font-medium text-sm sm:text-base text-gray-600 group-hover:text-blue-600 transition-colors">
+                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors mb-3 sm:mb-4" />
+                <h3 className="font-medium text-sm sm:text-base text-muted-foreground group-hover:text-primary transition-colors">
                   Add New Granite Variant
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                <p className="text-xs sm:text-sm text-muted mt-1 sm:mt-2">
                   Create a new base granite variant
                 </p>
               </CardContent>
@@ -1064,7 +1197,7 @@ export default function GraniteManagement() {
         /* LEVEL 2: SPECIFIC VARIANTS VIEW */
         <div className="space-y-4 sm:space-y-6">
           {/* Mobile-Responsive Variant Header */}
-          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+          <SemanticCard variant="info">
             <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -1074,23 +1207,23 @@ export default function GraniteManagement() {
                     className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                   />
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">🧱 {selectedVariant.name}</h2>
-                    <p className="text-sm sm:text-base text-gray-600">{selectedVariant.description || 'Base granite variant'}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">🧱 {selectedVariant.name}</h2>
+                    <p className="text-sm sm:text-base text-muted-foreground">{selectedVariant.description || 'Base granite variant'}</p>
                   </div>
                 </div>
                 <div className="text-center sm:text-right">
-                  <div className="text-2xl sm:text-3xl font-bold text-purple-600">{specificVariantsArray.length}</div>
-                  <div className="text-xs sm:text-sm text-purple-700">Specific Variants</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-granite-specific">{specificVariantsArray.length}</div>
+                  <div className="text-xs sm:text-sm text-granite-specific-dark">Specific Variants</div>
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </SemanticCard>
 
           {/* Mobile-Responsive Quick Search */}
           <Card>
             <CardContent className="p-3 sm:p-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="🔍 Search specific variants..."
                   value={searchTerm}
@@ -1110,7 +1243,7 @@ export default function GraniteManagement() {
                 onClick={() => setSelectedSpecificVariant(specificVariant)}
               >
                 {/* Enhanced Image Section */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden rounded-t-lg">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-info-lighter to-pink-50 overflow-hidden rounded-t-lg">
                   <img
                     src={specificVariant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjNlOGZmIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTMzM2VhIj7wn5KOIFNwZWNpZmljIFZhcmlhbnQ8L3RleHQ+Cjwvc3ZnPgo='}
                     alt={specificVariant.name}
@@ -1125,7 +1258,7 @@ export default function GraniteManagement() {
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className="text-white text-center">
                         <div className="text-sm font-medium">Click to explore</div>
-                        <div className="text-xs text-gray-200">View products for this variant</div>
+                        <div className="text-xs text-muted">View products for this variant</div>
                       </div>
                     </div>
                     
@@ -1134,18 +1267,18 @@ export default function GraniteManagement() {
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                        className="h-8 w-8 p-0 bg-card/90 hover:bg-card"
                         onClick={(e) => {
                           e.stopPropagation();
                           openEditModal('specificVariant', specificVariant);
                         }}
                       >
-                        <Edit className="h-4 w-4 text-gray-700" />
+                        <Edit className="h-4 w-4 text-foreground" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-500"
+                        className="h-8 w-8 p-0 bg-error/90 hover:bg-error"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDeleteModal('specificVariant', specificVariant);
@@ -1162,19 +1295,19 @@ export default function GraniteManagement() {
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div>
-                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-purple-600 transition-colors">
+                      <h3 className="font-bold text-lg text-foreground group-hover:text-info transition-colors">
                         💎 {specificVariant.name}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
                         {specificVariant.description || 'Premium specific variant with enhanced characteristics'}
                       </p>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                      <div className="text-xs text-gray-500">
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <div className="text-xs text-muted-foreground">
                         Created: {new Date(specificVariant.createdAt).toLocaleDateString()}
                       </div>
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                      <Badge variant="secondary" className="bg-info-light text-purple-800">
                         ⭐ Premium
                       </Badge>
                     </div>
@@ -1185,15 +1318,15 @@ export default function GraniteManagement() {
 
             {/* Add New Specific Variant Card */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-purple-400 bg-gradient-to-br from-gray-50 to-purple-50"
+              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-dashed border-input hover:border-purple-400 bg-gradient-to-br from-background to-purple-50"
               onClick={() => openCreateModal('specificVariant')}
             >
               <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
-                <Plus className="h-12 w-12 text-gray-400 group-hover:text-purple-500 transition-colors mb-4" />
-                <h3 className="font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
+                <Plus className="h-12 w-12 text-muted-foreground group-hover:text-purple-500 transition-colors mb-4" />
+                <h3 className="font-medium text-muted-foreground group-hover:text-info transition-colors">
                   Add New Specific Variant
                 </h3>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Create a specific variant for {selectedVariant.name}
                 </p>
               </CardContent>
@@ -1204,7 +1337,7 @@ export default function GraniteManagement() {
         /* LEVEL 3: PRODUCTS VIEW */
         <div className="space-y-4 sm:space-y-6">
           {/* Mobile-Responsive Product Header */}
-          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <Card className="bg-gradient-to-r from-success-lighter to-primary-lighter border-success-light">
             <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -1214,16 +1347,16 @@ export default function GraniteManagement() {
                     className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                   />
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">📦 {selectedSpecificVariant.name} <span className="hidden sm:inline">Products</span></h2>
-                    <p className="text-sm sm:text-base text-gray-600">
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">📦 {selectedSpecificVariant.name} <span className="hidden sm:inline">Products</span></h2>
+                    <p className="text-sm sm:text-base text-muted-foreground">
                       <span className="hidden sm:inline">Products for {selectedVariant.name} → {selectedSpecificVariant.name}</span>
                       <span className="sm:hidden">{selectedVariant.name} Products</span>
                     </p>
                   </div>
                 </div>
                 <div className="text-center sm:text-right">
-                  <div className="text-2xl sm:text-3xl font-bold text-green-600">{productsArray.length}</div>
-                  <div className="text-xs sm:text-sm text-green-700">Products Available</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-success">{productsArray.length}</div>
+                  <div className="text-xs sm:text-sm text-success">Products Available</div>
                 </div>
               </div>
             </CardContent>
@@ -1234,7 +1367,7 @@ export default function GraniteManagement() {
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center sm:justify-between">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search products..."
                     value={searchTerm}
@@ -1280,7 +1413,7 @@ export default function GraniteManagement() {
                 })}
               >
                 {/* Mobile-Optimized Image Section */}
-                <div className="relative aspect-[4/3] bg-gradient-to-br from-green-50 to-blue-50 overflow-hidden rounded-t-lg">
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-success-lighter to-primary-lighter overflow-hidden rounded-t-lg">
                   <img
                     src={(product.images && product.images.length > 0 ? product.images[0] : '') || 
                          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZGNmY2U3Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSIjMTZhMzRhIj7wn5OmIFByb2R1Y3Q8L3RleHQ+Cjwvc3ZnPgo='}
@@ -1293,9 +1426,9 @@ export default function GraniteManagement() {
                   
                   {/* Mobile-Friendly Stock Status Badge */}
                   <div className={`absolute top-2 sm:top-3 right-2 sm:right-3 px-2 py-1 rounded-full text-xs font-medium ${
-                    (product.stock || 0) <= 0 ? 'bg-red-500 text-white' :
-                    (product.stock || 0) <= 10 ? 'bg-yellow-500 text-white' :
-                    'bg-green-500 text-white'
+                    (product.stock || 0) <= 0 ? 'bg-error text-white' :
+                    (product.stock || 0) <= 10 ? 'bg-warning text-white' :
+                    'bg-success text-white'
                   }`}>
                     {(product.stock || 0) <= 0 ? '❌' :
                      (product.stock || 0) <= 10 ? '⚠️' :
@@ -1316,7 +1449,7 @@ export default function GraniteManagement() {
                   )}
                   
                   {/* Mobile-Optimized Price Badge */}
-                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 bg-green-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 bg-success text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
                     ₹{product.basePrice?.toLocaleString() || 'N/A'}
                   </div>
 
@@ -1326,7 +1459,7 @@ export default function GraniteManagement() {
                       <Button 
                         variant="secondary" 
                         size="sm"
-                        className="bg-white/90 hover:bg-white text-gray-900 text-xs sm:text-sm touch-manipulation"
+                        className="bg-card/90 hover:bg-card text-foreground text-xs sm:text-sm touch-manipulation"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDetailedViewModal({
@@ -1347,29 +1480,29 @@ export default function GraniteManagement() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">
+                      <h3 className="font-bold text-base sm:text-lg text-foreground group-hover:text-success transition-colors line-clamp-1">
                         📦 {product.name}
                       </h3>
-                      <p className="text-xs sm:text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         📏 {product.unit || 'sq_ft'} • 
                         {product.finish && product.finish.length > 0 ? ` ${product.finish.length} finishes` : ' Standard finish'}
                       </p>
                     </div>
                     
                     <div className="flex flex-wrap gap-1 sm:gap-2">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                      <Badge variant="secondary" className="bg-success-light text-success text-xs">
                         📦 {product.stock || 0}
                         <span className="hidden sm:inline"> units</span>
                       </Badge>
                       <Badge variant={product.status === 'active' ? 'default' : 'secondary'} 
-                             className={`text-xs ${product.status === 'active' ? 'bg-green-100 text-green-800' : ''}`}>
+                             className={`text-xs ${product.status === 'active' ? 'bg-success-light text-success' : ''}`}>
                         {product.status === 'active' ? '✅' : '⏸️'} 
                         <span className="hidden sm:inline ml-1">{product.status}</span>
                       </Badge>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                      <div className="text-xs text-gray-500">
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <div className="text-xs text-muted-foreground">
                         {new Date(product.createdAt).toLocaleDateString('en-US', { 
                           month: 'short', 
                           day: 'numeric',
@@ -1408,15 +1541,15 @@ export default function GraniteManagement() {
 
             {/* Mobile-Friendly Add New Product Card */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-gray-300 hover:border-green-400 bg-gradient-to-br from-gray-50 to-green-50 touch-manipulation"
+              className="group cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 border-2 border-dashed border-input hover:border-green-400 bg-gradient-to-br from-background to-green-50 touch-manipulation"
               onClick={() => openCreateModal('product')}
             >
               <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full min-h-[180px] sm:min-h-[200px]">
-                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 group-hover:text-green-500 transition-colors mb-3 sm:mb-4" />
-                <h3 className="font-medium text-sm sm:text-base text-gray-600 group-hover:text-green-600 transition-colors">
+                <Plus className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-green-500 transition-colors mb-3 sm:mb-4" />
+                <h3 className="font-medium text-sm sm:text-base text-muted-foreground group-hover:text-success transition-colors">
                   Add New Product
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
                   <span className="hidden sm:inline">Create a product for {selectedSpecificVariant.name}</span>
                   <span className="sm:hidden">Add product for {selectedSpecificVariant.name}</span>
                 </p>
@@ -1428,18 +1561,17 @@ export default function GraniteManagement() {
 
       {/* Mobile-Responsive Enhanced Modals */}
       <EnhancedFormModal
-        isOpen={showModal.type !== null && showModal.type !== 'delete'}
+        isOpen={showModal.type !== null && showModal.type !== 'delete' && showModal.type !== 'product'}
         onClose={() => setShowModal({ type: null, mode: 'create' })}
         title={showModal.mode === 'create' ? `Add New ${showModal.type}` : `Edit ${showModal.type}`}
         description={
           showModal.type === 'variant' ? 'Create a new granite variant with essential details' :
           showModal.type === 'specificVariant' ? `Add a specific variant for ${selectedVariant?.name}` :
-          showModal.type === 'product' ? `Create a new product for ${selectedSpecificVariant?.name}` :
           'Please fill in the required information'
         }
         onSubmit={showModal.mode === 'create' ? handleCreate : handleEdit}
-        enableSections={showModal.type === 'product'} // Only use sections for products
-        size="xl" // Use large size for better mobile experience
+        enableSections={false}
+        size="xl"
         fields={
           showModal.type === 'variant' ? [
             { 
@@ -1824,11 +1956,31 @@ export default function GraniteManagement() {
             }
           ] : []
         }
-        initialData={
-          showModal.mode === 'edit' && showModal.item ? (
-            showModal.type === 'product' ? transformProductForEdit(showModal.item) : showModal.item
-          ) : {}
-        }
+        initialData={memoizedInitialData || {}}
+      />
+
+      {/* Enhanced Product Creation Form Modal */}
+      {showModal.type === 'product' && (
+        <ModernProductForm
+          key={`${showModal.mode}-${showModal.item?._id || 'new'}`}
+          isOpen={true}
+          onClose={() => setShowModal({ type: null, mode: 'create' })}
+          onSubmit={showModal.mode === 'create' ? handleCreate : handleEdit}
+          specificVariant={selectedSpecificVariant || undefined}
+          initialData={memoizedInitialData}
+          mode={showModal.mode as 'create' | 'edit'}
+        />
+      )}
+
+      {/* Product Details Modal */}
+      <ModernProductDetails
+        isOpen={detailedViewModal.isOpen && detailedViewModal.type === 'product'}
+        onClose={() => setDetailedViewModal({ isOpen: false, type: 'variant', item: null })}
+        onEdit={() => {
+          setShowModal({ type: 'product', mode: 'edit', item: detailedViewModal.item });
+          setDetailedViewModal({ isOpen: false, type: 'variant', item: null });
+        }}
+        product={detailedViewModal.item as GraniteProduct}
       />
 
       <ConfirmDialog
@@ -1859,10 +2011,10 @@ export default function GraniteManagement() {
               </div>
               
               {dependencyInfo && !dependencyInfo.canDelete && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div className="text-red-800 font-medium">⚠️ {dependencyInfo.message}</div>
+                <div className="bg-error-lighter border border-error-light rounded-lg p-3">
+                  <div className="text-error font-medium">⚠️ {dependencyInfo.message}</div>
                   {dependencyInfo.dependencies && (
-                    <div className="mt-2 text-sm text-red-700">
+                    <div className="mt-2 text-sm text-error">
                       <div className="font-medium mb-1">Dependencies found:</div>
                       <ul className="list-disc list-inside space-y-1">
                         {dependencyInfo.dependencies.specificVariants > 0 && (
@@ -1874,16 +2026,16 @@ export default function GraniteManagement() {
                       </ul>
                     </div>
                   )}
-                  <div className="mt-2 text-sm text-red-600 italic">
+                  <div className="mt-2 text-sm text-error italic">
                     💡 Delete dependent items first: Products → Specific Variants → Variants
                   </div>
                 </div>
               )}
               
               {dependencyInfo?.canDelete && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <div className="text-green-800 font-medium">✅ Safe to delete</div>
-                  <div className="text-sm text-green-700">No dependent items found.</div>
+                <div className="bg-success-lighter border border-success-light rounded-lg p-3">
+                  <div className="text-success font-medium">✅ Safe to delete</div>
+                  <div className="text-sm text-success">No dependent items found.</div>
                 </div>
               )}
             </>
@@ -1907,6 +2059,14 @@ export default function GraniteManagement() {
         onClose={() => setDetailedViewModal({ isOpen: false, type: 'variant', item: null })}
         type={detailedViewModal.type}
         item={detailedViewModal.item}
+        onEdit={(item) => {
+          openEditModal(detailedViewModal.type, item);
+          setDetailedViewModal({ isOpen: false, type: 'variant', item: null });
+        }}
+        onDelete={(item) => {
+          openDeleteModal(detailedViewModal.type, item);
+          setDetailedViewModal({ isOpen: false, type: 'variant', item: null });
+        }}
       />
     </div>
   );

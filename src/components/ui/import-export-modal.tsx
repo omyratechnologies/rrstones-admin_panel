@@ -417,18 +417,18 @@ export function ImportExportModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
-          <div>
-            <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-card rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mx-2 sm:mx-0">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <div className="min-w-0 pr-4">
+            <h2 className="text-lg sm:text-2xl font-bold truncate">
               📊 Advanced Import/Export - {type.charAt(0).toUpperCase() + type.slice(1)}
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Professional-grade data management with comprehensive logging
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleCloseModal}>
+          <Button variant="ghost" size="sm" onClick={handleCloseModal} className="flex-shrink-0">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -441,7 +441,7 @@ export function ImportExportModal({
             type 
           });
           setActiveTab(newTab);
-        }} className="p-6">
+        }} className="p-4 sm:p-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="import" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
@@ -462,7 +462,7 @@ export function ImportExportModal({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileSpreadsheet className="h-5 w-5 text-blue-500" />
+                  <FileSpreadsheet className="h-5 w-5 text-primary" />
                   📁 File Upload & Validation
                 </CardTitle>
                 <CardDescription>
@@ -491,14 +491,14 @@ export function ImportExportModal({
                     </Button>
                   </div>
                   {selectedFile && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                     </div>
                   )}
                 </div>
 
                 {/* Import Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
                   <div className="space-y-2">
                     <Label>Delimiter</Label>
                     <Select
@@ -602,7 +602,7 @@ export function ImportExportModal({
                   <Button
                     onClick={handleImport}
                     disabled={!selectedFile || !validationResult?.isValid || isProcessing}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-primary hover:bg-primary-dark"
                   >
                     {isProcessing ? (
                       <>
@@ -620,9 +620,9 @@ export function ImportExportModal({
 
                 {/* Progress Bar */}
                 {isProcessing && progress > 0 && (
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${progress}%` }}
                     ></div>
                   </div>
@@ -636,53 +636,53 @@ export function ImportExportModal({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     {validationResult.isValid ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
-                      <AlertTriangle className="h-5 w-5 text-red-500" />
+                      <AlertTriangle className="h-5 w-5 text-error" />
                     )}
                     🔍 Validation Results
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-center p-3 bg-primary-lighter rounded-lg">
+                      <div className="text-2xl font-bold text-primary">
                         {validationResult.statistics.totalRows}
                       </div>
-                      <div className="text-sm text-gray-600">Total Rows</div>
+                      <div className="text-sm text-muted-foreground">Total Rows</div>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-3 bg-success-lighter rounded-lg">
+                      <div className="text-2xl font-bold text-success">
                         {validationResult.statistics.validRows}
                       </div>
-                      <div className="text-sm text-gray-600">Valid Rows</div>
+                      <div className="text-sm text-muted-foreground">Valid Rows</div>
                     </div>
-                    <div className="text-center p-3 bg-red-50 rounded-lg">
-                      <div className="text-2xl font-bold text-red-600">
+                    <div className="text-center p-3 bg-error-lighter rounded-lg">
+                      <div className="text-2xl font-bold text-error">
                         {validationResult.statistics.invalidRows}
                       </div>
-                      <div className="text-sm text-gray-600">Invalid Rows</div>
+                      <div className="text-sm text-muted-foreground">Invalid Rows</div>
                     </div>
-                    <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                      <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-center p-3 bg-warning-lighter rounded-lg">
+                      <div className="text-2xl font-bold text-warning">
                         {validationResult.statistics.duplicateRows}
                       </div>
-                      <div className="text-sm text-gray-600">Duplicates</div>
+                      <div className="text-sm text-muted-foreground">Duplicates</div>
                     </div>
                   </div>
 
                   {validationResult.errors.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-red-600">❌ Errors ({validationResult.errors.length})</h4>
+                      <h4 className="font-medium text-error">❌ Errors ({validationResult.errors.length})</h4>
                       <div className="max-h-40 overflow-y-auto space-y-1">
                         {validationResult.errors.slice(0, 10).map((error, index) => (
-                          <div key={index} className="text-sm p-2 bg-red-50 rounded border-l-4 border-red-500">
+                          <div key={index} className="text-sm p-2 bg-error-lighter rounded border-l-4 border-error">
                             <strong>Row {error.row}:</strong> {error.message}
-                            {error.field && <span className="text-gray-600"> (Field: {error.field})</span>}
+                            {error.field && <span className="text-muted-foreground"> (Field: {error.field})</span>}
                           </div>
                         ))}
                         {validationResult.errors.length > 10 && (
-                          <div className="text-sm text-gray-500 italic">
+                          <div className="text-sm text-muted-foreground italic">
                             ... and {validationResult.errors.length - 10} more errors
                           </div>
                         )}
@@ -692,16 +692,16 @@ export function ImportExportModal({
 
                   {validationResult.warnings.length > 0 && (
                     <div className="space-y-2 mt-4">
-                      <h4 className="font-medium text-yellow-600">⚠️ Warnings ({validationResult.warnings.length})</h4>
+                      <h4 className="font-medium text-warning">⚠️ Warnings ({validationResult.warnings.length})</h4>
                       <div className="max-h-40 overflow-y-auto space-y-1">
                         {validationResult.warnings.slice(0, 5).map((warning, index) => (
-                          <div key={index} className="text-sm p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                          <div key={index} className="text-sm p-2 bg-warning-lighter rounded border-l-4 border-warning">
                             <strong>Row {warning.row}:</strong> {warning.message}
-                            {warning.field && <span className="text-gray-600"> (Field: {warning.field})</span>}
+                            {warning.field && <span className="text-muted-foreground"> (Field: {warning.field})</span>}
                           </div>
                         ))}
                         {validationResult.warnings.length > 5 && (
-                          <div className="text-sm text-gray-500 italic">
+                          <div className="text-sm text-muted-foreground italic">
                             ... and {validationResult.warnings.length - 5} more warnings
                           </div>
                         )}
@@ -718,7 +718,7 @@ export function ImportExportModal({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileJson className="h-5 w-5 text-green-500" />
+                  <FileJson className="h-5 w-5 text-success" />
                   📤 Data Export Configuration
                 </CardTitle>
                 <CardDescription>
@@ -789,12 +789,12 @@ export function ImportExportModal({
                   </div>
                 </div>
 
-                <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="p-4 bg-primary-lighter rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <Database className="h-4 w-4 text-blue-600" />
+                    <Database className="h-4 w-4 text-primary" />
                     <span className="font-medium">Export Statistics</span>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     📊 Ready to export {data.length} {type} records
                   </div>
                 </div>
@@ -802,7 +802,7 @@ export function ImportExportModal({
                 <Button
                   onClick={handleExport}
                   disabled={data.length === 0 || isProcessing}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-success hover:bg-success-dark"
                 >
                   {isProcessing ? (
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -820,7 +820,7 @@ export function ImportExportModal({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-purple-500" />
+                  <Clock className="h-5 w-5 text-primary" />
                   📋 Operation History & Logs
                 </CardTitle>
                 <CardDescription>
@@ -844,7 +844,7 @@ export function ImportExportModal({
 
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {logs.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       📝 No operations logged yet
                     </div>
                   ) : (
@@ -854,9 +854,9 @@ export function ImportExportModal({
                           <div>
                             <div className="flex items-center gap-2">
                               {log.operation === 'import' ? (
-                                <Upload className="h-4 w-4 text-blue-500" />
+                                <Upload className="h-4 w-4 text-primary" />
                               ) : (
-                                <Download className="h-4 w-4 text-green-500" />
+                                <Download className="h-4 w-4 text-success" />
                               )}
                               <span className="font-medium">
                                 {log.operation.toUpperCase()} {log.type}
@@ -871,7 +871,7 @@ export function ImportExportModal({
                                 {log.status}
                               </Badge>
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-muted-foreground">
                               {log.startTime.toLocaleString()}
                               {log.endTime && ` - ${log.endTime.toLocaleString()}`}
                             </div>
@@ -880,32 +880,32 @@ export function ImportExportModal({
 
                         <div className="grid grid-cols-4 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-500">Total:</span>
+                            <span className="text-muted-foreground">Total:</span>
                             <div className="font-medium">{log.totalRecords}</div>
                           </div>
                           <div>
-                            <span className="text-gray-500">Processed:</span>
+                            <span className="text-muted-foreground">Processed:</span>
                             <div className="font-medium">{log.processedRecords}</div>
                           </div>
                           <div>
-                            <span className="text-gray-500">Success:</span>
-                            <div className="font-medium text-green-600">{log.successfulRecords}</div>
+                            <span className="text-muted-foreground">Success:</span>
+                            <div className="font-medium text-success">{log.successfulRecords}</div>
                           </div>
                           <div>
-                            <span className="text-gray-500">Failed:</span>
-                            <div className="font-medium text-red-600">{log.failedRecords}</div>
+                            <span className="text-muted-foreground">Failed:</span>
+                            <div className="font-medium text-error">{log.failedRecords}</div>
                           </div>
                         </div>
 
                         {(log.errors.length > 0 || log.warnings.length > 0) && (
                           <div className="text-sm space-y-1">
                             {log.errors.length > 0 && (
-                              <div className="text-red-600">
+                              <div className="text-error">
                                 ❌ {log.errors.length} error(s)
                               </div>
                             )}
                             {log.warnings.length > 0 && (
-                              <div className="text-yellow-600">
+                              <div className="text-warning">
                                 ⚠️ {log.warnings.length} warning(s)
                               </div>
                             )}
@@ -913,7 +913,7 @@ export function ImportExportModal({
                         )}
 
                         {log.fileName && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             📁 {log.fileName} 
                             {log.fileSize && ` (${(log.fileSize / 1024).toFixed(1)} KB)`}
                           </div>

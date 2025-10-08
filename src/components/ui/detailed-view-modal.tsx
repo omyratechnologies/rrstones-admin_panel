@@ -19,13 +19,17 @@ interface DetailedViewModalProps {
   onClose: () => void;
   type: 'variant' | 'specificVariant' | 'product';
   item: any;
+  onEdit?: (item: any) => void;
+  onDelete?: (item: any) => void;
 }
 
 const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
   isOpen,
   onClose,
   type,
-  item
+  item,
+  onEdit,
+  onDelete
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -192,7 +196,7 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                     <div>
                       <label className="text-sm font-medium text-gray-500">Base Variant ID</label>
                       <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                        {item.variantId}
+                        {typeof item.variantId === 'object' ? item.variantId._id || item.variantId.id : item.variantId}
                       </p>
                     </div>
                   )}
@@ -257,11 +261,18 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                           <div>
                             <label className="text-sm font-medium text-gray-600">Dimensions</label>
                             <p className="text-lg font-bold text-blue-800">
-                              {item.dimensionsString || `${item.dimensions.length}"×${item.dimensions.width}"×${item.dimensions.thickness}"`}
+                              {item.dimensionsString && item.dimensionsString !== 'undefined"×undefined"×undefined"' 
+                                ? item.dimensionsString 
+                                : item.dimensions && item.dimensions.length && item.dimensions.width && item.dimensions.thickness
+                                  ? `${item.dimensions.length}"×${item.dimensions.width}"×${item.dimensions.thickness}"`
+                                  : 'N/A'
+                              }
                             </p>
-                            <p className="text-sm text-gray-600">
-                              L: {item.dimensions.length}" × W: {item.dimensions.width}" × T: {item.dimensions.thickness}"
-                            </p>
+                            {item.dimensions && item.dimensions.length && item.dimensions.width && item.dimensions.thickness && (
+                              <p className="text-sm text-gray-600">
+                                L: {item.dimensions.length}" × W: {item.dimensions.width}" × T: {item.dimensions.thickness}"
+                              </p>
+                            )}
                           </div>
                           <div>
                             <label className="text-sm font-medium text-gray-600">Area per Piece</label>
@@ -271,11 +282,49 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                             {item.weight_per_piece && (
                               <>
                                 <label className="text-sm font-medium text-gray-600 block mt-2">Weight per Piece</label>
-                                <p className="text-base font-medium">{item.weight_per_piece} kg</p>
+                                <p className="text-base font-medium">{item.weight_per_piece} lbs</p>
                               </>
                             )}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Size Variants Display for Multiple Size Products */}
+                  {item.has_multiple_sizes && item.size_variants && item.size_variants.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">📐 Size Variants</h3>
+                      <div className="space-y-3">
+                        {item.size_variants.map((variant: any, index: number) => (
+                          <div key={index} className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <label className="text-sm font-medium text-gray-600">Size Name</label>
+                                <p className="text-lg font-bold text-blue-800">{variant.size_name}</p>
+                                <p className="text-sm text-gray-600">
+                                  {variant.dimensions.length}" × {variant.dimensions.width}" × {variant.dimensions.thickness}"
+                                </p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-600">Area & Weight</label>
+                                <p className="text-base font-medium">{variant.area_per_piece} sq ft</p>
+                                <p className="text-sm text-gray-600">{variant.weight_per_piece} lbs</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-600">Pricing</label>
+                                <p className="text-lg font-bold text-green-600">
+                                  {item.pricing?.currency === 'INR' ? '₹' : '$'}{variant.price_per_piece}
+                                </p>
+                                {variant.price_per_sqft && (
+                                  <p className="text-sm text-gray-600">
+                                    {item.pricing?.currency === 'INR' ? '₹' : '$'}{variant.price_per_sqft}/sq ft
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -449,9 +498,12 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
                           </div>
                           {item.variantSpecificId.variantId && (
                             <div>
-                              <label className="text-sm font-medium text-gray-600">Base Variant ID</label>
-                              <p className="text-sm font-mono bg-white px-2 py-1 rounded border">
-                                {item.variantSpecificId.variantId}
+                              <label className="text-sm font-medium text-gray-600">Base Variant</label>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {item.variantSpecificId.variantId.name || 'N/A'}
+                              </p>
+                              <p className="text-xs font-mono bg-white px-2 py-1 rounded border mt-1">
+                                ID: {item.variantSpecificId.variantId._id || item.variantSpecificId.variantId.id}
                               </p>
                             </div>
                           )}
@@ -504,28 +556,32 @@ const DetailedViewModal: React.FC<DetailedViewModalProps> = ({
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4 border-t">
-                <Button 
-                  variant="default" 
-                  className="flex-1"
-                  onClick={() => {
-                    // Handle edit action
-                    onClose();
-                  }}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit {type === 'variant' ? 'Variant' : type === 'specificVariant' ? 'Specific Variant' : 'Product'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                  onClick={() => {
-                    // Handle delete action
-                    onClose();
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+                {onEdit && (
+                  <Button 
+                    variant="default" 
+                    className="flex-1"
+                    onClick={() => {
+                      onEdit(item);
+                      onClose();
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit {type === 'variant' ? 'Variant' : type === 'specificVariant' ? 'Specific Variant' : 'Product'}
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => {
+                      onDelete(item);
+                      onClose();
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           </div>

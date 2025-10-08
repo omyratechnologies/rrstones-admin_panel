@@ -203,26 +203,26 @@ export default function UsersManagement() {
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'super_admin':
-        return 'bg-red-100 text-red-800';
+        return 'bg-error-light text-error';
       case 'admin':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-primary-light text-primary';
       case 'staff':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success-light text-success';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-foreground';
     }
   };
 
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'T1':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-light text-warning';
       case 'T2':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-warning-light text-orange-800';
       case 'T3':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success-light text-success';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-foreground';
     }
   };
 
@@ -269,7 +269,7 @@ export default function UsersManagement() {
       return (
         <div className="text-center py-12">
           <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">No users found</h3>
           <p className="text-muted-foreground">{emptyMessage}</p>
         </div>
       );
@@ -280,7 +280,7 @@ export default function UsersManagement() {
         {tabUsers.map((user: User) => (
           <div
             key={user._id}
-            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-between p-4 border rounded-lg hover:bg-background transition-colors"
           >
             <div className="flex items-center space-x-4">
               <input
@@ -291,7 +291,7 @@ export default function UsersManagement() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {user.name}
                   </p>
                   <span
@@ -309,17 +309,17 @@ export default function UsersManagement() {
                     {user.tier}
                   </span>
                   {!user.isActive && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-light text-error">
                       Inactive
                     </span>
                   )}
                   {user.customDiscount && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-light text-purple-800">
                       {user.customDiscount}% Discount
                     </span>
                   )}
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <span>{user.email}</span>
                   {user.phone && <span>{user.phone}</span>}
                   {user.company && <span>{user.company}</span>}
@@ -338,7 +338,7 @@ export default function UsersManagement() {
                 }}
                 variant={user.isActive ? "outline" : "default"}
                 size="sm"
-                className={user.isActive ? "text-orange-600 border-orange-200 hover:bg-orange-50" : "text-green-600 bg-green-50 hover:bg-green-100"}
+                className={user.isActive ? "text-warning border-warning-light hover:bg-warning-lighter" : "text-success bg-success-lighter hover:bg-success-light"}
               >
                 {user.isActive ? 'Deactivate' : 'Activate'}
               </Button>
@@ -415,40 +415,40 @@ export default function UsersManagement() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
+            <Users className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.activeUsers}</div>
+            <div className="text-2xl font-bold text-success">{stats.activeUsers}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">New Users</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.newUsersThisMonth}</div>
+            <div className="text-2xl font-bold text-primary">{stats.newUsersThisMonth}</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Customers</CardTitle>
-            <Users className="h-4 w-4 text-orange-600" />
+            <Users className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.totalCustomers}</div>
+            <div className="text-2xl font-bold text-warning">{stats.totalCustomers}</div>
             <p className="text-xs text-muted-foreground">Customer accounts</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Admins</CardTitle>
-            <Users className="h-4 w-4 text-red-600" />
+            <Users className="h-4 w-4 text-error" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.totalAdmins}</div>
+            <div className="text-2xl font-bold text-error">{stats.totalAdmins}</div>
             <p className="text-xs text-muted-foreground">Admin accounts</p>
           </CardContent>
         </Card>
@@ -481,7 +481,7 @@ export default function UsersManagement() {
             <div className="flex flex-col md:flex-row gap-4">
               {/* Role Filter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Filter by Role
                 </label>
                 <Select 
@@ -506,7 +506,7 @@ export default function UsersManagement() {
 
               {/* Tier Filter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Filter by Tier
                 </label>
                 <Select 
@@ -532,7 +532,7 @@ export default function UsersManagement() {
 
               {/* Status Filter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Filter by Status
                 </label>
                 <Select 
@@ -577,7 +577,7 @@ export default function UsersManagement() {
                     onClick={() => handleBulkAction('activate')}
                     variant="outline"
                     size="sm"
-                    className="text-green-600 border-green-200 hover:bg-green-50"
+                    className="text-success border-success-light hover:bg-success-lighter"
                   >
                     Activate ({selectedUsers.length})
                   </Button>
@@ -585,7 +585,7 @@ export default function UsersManagement() {
                     onClick={() => handleBulkAction('deactivate')}
                     variant="outline"
                     size="sm"
-                    className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                    className="text-warning border-warning-light hover:bg-warning-lighter"
                   >
                     Deactivate ({selectedUsers.length})
                   </Button>
@@ -687,7 +687,7 @@ export default function UsersManagement() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-foreground">
                 Page {currentPage || 1} of {totalPages} • Showing {users.length} users
               </p>
               <div className="flex items-center space-x-2">
@@ -707,7 +707,7 @@ export default function UsersManagement() {
                 >
                   Previous
                 </Button>
-                <span className="text-sm text-gray-500 px-3">
+                <span className="text-sm text-muted-foreground px-3">
                   {currentPage || 1} of {totalPages}
                 </span>
                 <Button

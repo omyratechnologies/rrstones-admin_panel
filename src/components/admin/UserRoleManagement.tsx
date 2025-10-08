@@ -88,12 +88,12 @@ export default function UserRoleManagement() {
   // Get role color
   const getRoleColor = (role: string) => {
     const colors = {
-      customer: 'bg-gray-100 text-gray-800',
-      staff: 'bg-green-100 text-green-800',
-      admin: 'bg-blue-100 text-blue-800',
-      super_admin: 'bg-red-100 text-red-800'
+      customer: 'bg-muted text-foreground',
+      staff: 'bg-success-light text-success',
+      admin: 'bg-primary-light text-primary',
+      super_admin: 'bg-error-light text-error'
     };
-    return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[role as keyof typeof colors] || 'bg-muted text-foreground';
   };
 
   // Filter users
@@ -114,7 +114,7 @@ export default function UserRoleManagement() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">User & Role Management</h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Manage user roles, permissions, and access control
           </p>
         </div>
@@ -144,7 +144,7 @@ export default function UserRoleManagement() {
         <CardContent>
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, email, or company..."
                 value={searchTerm}
@@ -156,7 +156,7 @@ export default function UserRoleManagement() {
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input rounded-md"
               >
                 <option value="all">All Roles</option>
                 <option value="staff">Staff</option>
@@ -170,7 +170,7 @@ export default function UserRoleManagement() {
 
       {/* Bulk Actions Panel */}
       {bulkActionMode && selectedUsers.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-primary-light bg-primary-lighter">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -218,8 +218,8 @@ export default function UserRoleManagement() {
           {usersLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <UserCog className="h-8 w-8 animate-pulse text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Loading users...</p>
+                <UserCog className="h-8 w-8 animate-pulse text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading users...</p>
               </div>
             </div>
           ) : (
@@ -229,8 +229,8 @@ export default function UserRoleManagement() {
                   key={user._id}
                   className={`p-4 border rounded-lg transition-all ${
                     selectedUsers.includes(user._id) 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-primary-lighter' 
+                      : 'border-border hover:border-input'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -253,7 +253,7 @@ export default function UserRoleManagement() {
                             <Badge variant="destructive">Inactive</Badge>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
                           <div><strong>Email:</strong> {user.email}</div>
                           <div><strong>Phone:</strong> {user.phone}</div>
                           <div><strong>Company:</strong> {user.company || 'N/A'}</div>
@@ -303,9 +303,9 @@ export default function UserRoleManagement() {
               
               {filteredUsers.length === 0 && (
                 <div className="text-center py-12">
-                  <UserCog className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-                  <p className="text-gray-500">Try adjusting your search or filters.</p>
+                  <UserCog className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No users found</h3>
+                  <p className="text-muted-foreground">Try adjusting your search or filters.</p>
                 </div>
               )}
             </div>

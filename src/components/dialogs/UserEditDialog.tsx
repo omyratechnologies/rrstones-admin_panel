@@ -109,7 +109,11 @@ export default function UserEditDialog({ open, onOpenChange, user }: UserEditDia
         <CardHeader>
           <CardTitle>Edit User: {user.name}</CardTitle>
           <p className="text-sm text-gray-600">
-            Update user information. Email cannot be changed.
+            Update user information. Email and role cannot be changed.
+            {user.role === 'customer' ? 
+              ' Customer-specific fields (tier, discount, company, address) are available below.' :
+              ' This is an administrative user account.'
+            }
           </p>
         </CardHeader>
 
@@ -165,63 +169,71 @@ export default function UserEditDialog({ open, onOpenChange, user }: UserEditDia
                 <p className="text-xs text-gray-500">Role cannot be changed here</p>
               </div>
 
-              {/* Tier */}
-              <div className="space-y-2">
-                <label htmlFor="tier" className="text-sm font-medium">Tier</label>
-                <select
-                  id="tier"
-                  value={formData.tier}
-                  onChange={(e) => handleInputChange('tier', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {tiersData?.data?.tiers?.map((tier) => (
-                    <option key={tier._id} value={tier.tier}>
-                      {tier.tier} - {tier.description} ({tier.discountPercent}% discount)
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Tier - Only for customers */}
+              {user.role === 'customer' && (
+                <div className="space-y-2">
+                  <label htmlFor="tier" className="text-sm font-medium">Tier</label>
+                  <select
+                    id="tier"
+                    value={formData.tier}
+                    onChange={(e) => handleInputChange('tier', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {tiersData?.data?.tiers?.map((tier) => (
+                      <option key={tier._id} value={tier.tier}>
+                        {tier.tier} - {tier.description} ({tier.discountPercent}% discount)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-              {/* Custom Discount */}
+              {/* Custom Discount - Only for customers */}
+              {user.role === 'customer' && (
+                <div className="space-y-2">
+                  <label htmlFor="customDiscount" className="text-sm font-medium">Custom Discount (%)</label>
+                  <Input
+                    id="customDiscount"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.customDiscount || ''}
+                    onChange={(e) => handleInputChange('customDiscount', e.target.value ? Number(e.target.value) : undefined)}
+                    placeholder="Optional custom discount"
+                    className={errors.customDiscount ? 'border-red-500' : ''}
+                  />
+                  {errors.customDiscount && <p className="text-sm text-red-500">{errors.customDiscount}</p>}
+                </div>
+              )}
+            </div>
+
+            {/* Company - Only for customers */}
+            {user.role === 'customer' && (
               <div className="space-y-2">
-                <label htmlFor="customDiscount" className="text-sm font-medium">Custom Discount (%)</label>
+                <label htmlFor="company" className="text-sm font-medium">Company</label>
                 <Input
-                  id="customDiscount"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.customDiscount || ''}
-                  onChange={(e) => handleInputChange('customDiscount', e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="Optional custom discount"
-                  className={errors.customDiscount ? 'border-red-500' : ''}
+                  id="company"
+                  value={formData.company}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  placeholder="Enter company name"
                 />
-                {errors.customDiscount && <p className="text-sm text-red-500">{errors.customDiscount}</p>}
               </div>
-            </div>
+            )}
 
-            {/* Company */}
-            <div className="space-y-2">
-              <label htmlFor="company" className="text-sm font-medium">Company</label>
-              <Input
-                id="company"
-                value={formData.company}
-                onChange={(e) => handleInputChange('company', e.target.value)}
-                placeholder="Enter company name"
-              />
-            </div>
-
-            {/* Address */}
-            <div className="space-y-2">
-              <label htmlFor="address" className="text-sm font-medium">Address</label>
-              <textarea
-                id="address"
-                value={formData.address}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('address', e.target.value)}
-                placeholder="Enter complete address"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            {/* Address - Only for customers */}
+            {user.role === 'customer' && (
+              <div className="space-y-2">
+                <label htmlFor="address" className="text-sm font-medium">Address</label>
+                <textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('address', e.target.value)}
+                  placeholder="Enter complete address"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
 
             {/* Status */}
             <div className="space-y-2">

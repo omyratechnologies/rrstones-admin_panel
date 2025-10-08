@@ -61,12 +61,12 @@ export default function PermissionManagement() {
   // Get role color
   const getRoleColor = (code: string) => {
     const colors = {
-      customer: 'bg-gray-100 text-gray-800',
-      staff: 'bg-green-100 text-green-800',
-      admin: 'bg-blue-100 text-blue-800',
-      super_admin: 'bg-red-100 text-red-800'
+      customer: 'bg-muted text-foreground',
+      staff: 'bg-success-light text-success',
+      admin: 'bg-primary-light text-primary',
+      super_admin: 'bg-error-light text-error'
     };
-    return colors[code as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[code as keyof typeof colors] || 'bg-muted text-foreground';
   };
 
   // Filter permissions by search term
@@ -362,7 +362,7 @@ export default function PermissionManagement() {
                       {(analyticsData as any).data.topPermissions.map((item: any, index: number) => (
                         <div key={item._id} className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-medium">
+                            <div className="w-6 h-6 bg-primary-light text-primary rounded-full flex items-center justify-center text-sm font-medium">
                               {index + 1}
                             </div>
                             <span className="font-medium">{item._id}</span>

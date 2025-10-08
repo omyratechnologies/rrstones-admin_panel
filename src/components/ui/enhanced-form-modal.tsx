@@ -258,17 +258,17 @@ export function EnhancedFormModal({
     return (
       <div key={field.name} className="space-y-3 relative">
         <div className="flex items-center justify-between">
-          <Label htmlFor={fieldId} className="text-sm font-medium text-gray-700 flex items-center gap-2">
+          <Label htmlFor={fieldId} className="text-sm font-medium text-foreground flex items-center gap-2">
             {field.icon && <field.icon className="h-4 w-4" />}
             {field.label}
-            {field.required && <span className="text-red-500">*</span>}
-            {isCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
+            {field.required && <span className="text-error">*</span>}
+            {isCompleted && <CheckCircle className="h-4 w-4 text-success" />}
           </Label>
           {field.description && (
             <div className="group relative">
-              <Info className="h-4 w-4 text-gray-400 cursor-help" />
-              <div className="absolute right-0 top-6 w-72 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
-                <div className="absolute -top-1 right-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              <div className="absolute right-0 top-6 w-72 p-3 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
+                <div className="absolute -top-1 right-4 w-2 h-2 bg-popover transform rotate-45"></div>
                 {field.description}
               </div>
             </div>
@@ -285,10 +285,10 @@ export function EnhancedFormModal({
               rows={field.rows || 3}
               className={`w-full transition-all duration-200 ${
                 hasError 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  ? 'border-error focus:border-error focus:ring-error' 
                   : isCompleted 
-                  ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                  : 'focus:border-blue-500 focus:ring-blue-500'
+                  ? 'border-success focus:border-success focus:ring-success'
+                  : 'focus:border-primary focus:ring-primary'
               }`}
             />
           ) : field.type === 'select' ? (
@@ -296,12 +296,12 @@ export function EnhancedFormModal({
               id={fieldId}
               value={formData[field.name] || ''}
               onChange={(e) => handleFieldChange(field.name, e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm transition-all duration-200 bg-white ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm transition-all duration-200 bg-card ${
                 hasError 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  ? 'border-error focus:border-error focus:ring-error' 
                   : isCompleted 
-                  ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                  : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  ? 'border-success focus:border-success focus:ring-success'
+                  : 'border-border focus:border-primary focus:ring-primary'
               }`}
             >
               <option value="">Select {field.label}</option>
@@ -313,7 +313,7 @@ export function EnhancedFormModal({
             </select>
           ) : field.type === 'multiselect' ? (
             <div className="space-y-3">
-              <div className="flex flex-wrap gap-2 min-h-[2.5rem] p-3 border rounded-md bg-gray-50">
+              <div className="flex flex-wrap gap-2 min-h-[2.5rem] p-3 border rounded-md bg-muted">
                 {Array.isArray(formData[field.name]) && formData[field.name].length > 0 ? (
                   formData[field.name].map((value: string) => (
                     <Badge key={value} variant="secondary" className="flex items-center gap-1">
@@ -328,7 +328,7 @@ export function EnhancedFormModal({
                     </Badge>
                   ))
                 ) : (
-                  <span className="text-gray-400 text-sm">No {field.label.toLowerCase()} selected</span>
+                  <span className="text-muted-foreground text-sm">No {field.label.toLowerCase()} selected</span>
                 )}
               </div>
               <select
@@ -341,7 +341,7 @@ export function EnhancedFormModal({
                     e.target.value = '';
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+                className="w-full px-3 py-2 border border-border rounded-md bg-card"
               >
                 <option value="">Add {field.label}</option>
                 {field.options?.map(option => (
@@ -362,10 +362,10 @@ export function EnhancedFormModal({
                 onChange={(file) => handleFieldChange(field.name, file)}
                 acceptedTypes={field.accept?.split(',').map(type => type.trim())}
                 maxSize={field.maxSize}
-                className={hasError ? 'border-red-500' : isCompleted ? 'border-green-500' : ''}
+                className={hasError ? 'border-error' : isCompleted ? 'border-success' : ''}
               />
               {field.accept && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Accepted formats: {field.accept.split(',').join(', ')}
                 </p>
               )}
@@ -382,17 +382,17 @@ export function EnhancedFormModal({
               step={field.step}
               className={`w-full transition-all duration-200 ${
                 hasError 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  ? 'border-error focus:border-error focus:ring-error' 
                   : isCompleted 
-                  ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                  : 'focus:border-blue-500 focus:ring-blue-500'
+                  ? 'border-success focus:border-success focus:ring-success'
+                  : 'focus:border-primary focus:ring-primary'
               }`}
             />
           )}
         </div>
 
         {hasError && (
-          <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
+          <div className="flex items-center gap-2 text-error text-sm mt-2">
             <AlertCircle className="h-4 w-4" />
             {errors[field.name]}
           </div>
@@ -408,39 +408,30 @@ export function EnhancedFormModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={size} className="mx-4 my-8">
       <form onSubmit={handleSubmit} className="flex flex-col h-full max-h-[85vh]">
-        <ModalHeader className="border-b border-gray-200 pb-4 px-6 pt-6">
+        <ModalHeader className="border-b border-border pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
           <div className="flex items-center justify-between">
-            <div className="flex-1 pr-4">
-              <ModalTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <div className="flex-1">
+              <ModalTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
                 {currentSection?.icon && <currentSection.icon className="h-5 w-5" />}
                 {title}
               </ModalTitle>
               {description && (
-                <p className="text-sm text-gray-600 mt-1">{description}</p>
+                <p className="text-sm text-muted-foreground mt-1">{description}</p>
               )}
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 flex-shrink-0"
-            >
-              <X className="h-5 w-5" />
-            </Button>
           </div>
 
           {useSections && (
             <div className="mt-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-muted-foreground">
                   Step {currentStep + 1} of {totalSteps}: {currentSection?.title}
                 </span>
-                <span className="text-gray-500">{Math.round(progress)}% complete</span>
+                <span className="text-muted-foreground">{Math.round(progress)}% complete</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  className="bg-primary h-2 rounded-full transition-all duration-300" 
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -454,10 +445,10 @@ export function EnhancedFormModal({
                     onClick={() => setCurrentStep(index)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
                       index === currentStep
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-primary-lighter text-primary-dark'
                         : index < currentStep
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        ? 'bg-success-lighter text-success-dark'
+                        : 'bg-muted text-muted-foreground hover:bg-muted'
                     }`}
                   >
                     <section.icon className="h-3 w-3" />
@@ -470,17 +461,17 @@ export function EnhancedFormModal({
           )}
         </ModalHeader>
 
-        <ModalBody className="flex-1 overflow-y-auto modal-body-scroll px-5">
-          <div className="modal-content-container px-6 py-4 space-y-6">
+        <ModalBody className="flex-1 overflow-y-auto modal-body-scroll px-3 sm:px-5">
+          <div className="modal-content-container px-4 sm:px-6 py-4 space-y-6">
             {useSections ? (
               <div className="space-y-6">
                 {currentSection && (
                   <>
                     <div className="text-center mb-6">
-                      <currentSection.icon className="h-12 w-12 text-blue-500 mx-auto mb-3" />
-                      <h3 className="text-lg font-medium text-gray-900">{currentSection.title}</h3>
+                      <currentSection.icon className="h-12 w-12 text-primary mx-auto mb-3" />
+                      <h3 className="text-lg font-medium text-foreground">{currentSection.title}</h3>
                       {currentSection.description && (
-                        <p className="text-sm text-gray-600 mt-1">{currentSection.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{currentSection.description}</p>
                       )}
                     </div>
                     
@@ -498,7 +489,7 @@ export function EnhancedFormModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="border-t border-gray-200 pt-4 pb-6 px-6">
+        <ModalFooter className="border-t border-border pt-4 pb-4 sm:pb-6 px-4 sm:px-6">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center space-x-2">
               {useSections && currentStep > 0 && (

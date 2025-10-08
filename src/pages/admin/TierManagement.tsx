@@ -209,7 +209,7 @@ const TierManagement: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Tier Management</h1>
-          <p className="text-gray-600 mt-2">Manage customer tiers and discount levels</p>
+          <p className="text-muted-foreground mt-2">Manage customer tiers and discount levels</p>
         </div>
         <Button 
           onClick={() => setIsCreateDialogOpen(true)}
@@ -288,9 +288,9 @@ const TierManagement: React.FC = () => {
                             <span className="font-medium">{item.tier}</span>
                             <span>{item.userCount} users ({item.percentage.toFixed(1)}%)</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full" 
+                              className="bg-primary h-2 rounded-full" 
                               style={{ width: `${item.percentage}%` }}
                             ></div>
                           </div>
@@ -326,7 +326,7 @@ const TierManagement: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search tiers..."
                   value={searchTerm}
@@ -339,7 +339,7 @@ const TierManagement: React.FC = () => {
               <select 
                 value={statusFilter} 
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input rounded-md"
               >
                 <option value="all">All Tiers</option>
                 <option value="active">Active Only</option>
@@ -367,13 +367,13 @@ const TierManagement: React.FC = () => {
                 <CardContent>
                   <div className="space-y-2">
                     {tier.minimumOrderValue && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <ShoppingCart className="h-4 w-4" />
                         Min Order: ₹{tier.minimumOrderValue.toLocaleString()}
                       </div>
                     )}
                     {tier.benefits && tier.benefits.length > 0 && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Gift className="h-4 w-4" />
                         {tier.benefits.join(', ')}
                       </div>
@@ -393,7 +393,7 @@ const TierManagement: React.FC = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeleteTier(tier.tier)}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-error hover:text-error"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -406,9 +406,9 @@ const TierManagement: React.FC = () => {
           {filteredTiers.length === 0 && (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <Star className="h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No tiers found</h3>
-                <p className="text-gray-600 text-center">
+                <Star className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No tiers found</h3>
+                <p className="text-muted-foreground text-center">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'Try adjusting your search or filter criteria.'
                     : 'Create your first tier to get started.'
@@ -421,10 +421,10 @@ const TierManagement: React.FC = () => {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-primary-lighter border border-primary-light rounded-lg p-4">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-blue-600" />
-              <p className="text-blue-800">
+              <Activity className="h-4 w-4 text-primary" />
+              <p className="text-primary">
                 Tier analytics help you understand user distribution and revenue performance across different tiers.
               </p>
             </div>
@@ -445,12 +445,12 @@ const TierManagement: React.FC = () => {
                           <span className="font-medium">{item.tier}</span>
                           <div className="text-right">
                             <div className="font-bold">{item.userCount}</div>
-                            <div className="text-sm text-gray-600">{item.percentage.toFixed(1)}%</div>
+                            <div className="text-sm text-muted-foreground">{item.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-2">
                           <div 
-                            className="bg-green-600 h-2 rounded-full" 
+                            className="bg-success h-2 rounded-full" 
                             style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
@@ -468,14 +468,14 @@ const TierManagement: React.FC = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {tierStats.revenueByTier.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div key={index} className="flex justify-between items-center p-3 bg-background rounded-lg">
                         <div>
                           <div className="font-medium">{item.tier}</div>
-                          <div className="text-sm text-gray-600">Tier Revenue</div>
+                          <div className="text-sm text-muted-foreground">Tier Revenue</div>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold">₹{item.revenue.toLocaleString()}</div>
-                          <div className="text-sm text-gray-600">Total</div>
+                          <div className="text-sm text-muted-foreground">Total</div>
                         </div>
                       </div>
                     ))}
@@ -490,7 +490,7 @@ const TierManagement: React.FC = () => {
       {/* Create Tier Modal */}
       {isCreateDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full m-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full m-4">
             <h2 className="text-xl font-bold mb-4">Create New Tier</h2>
             <div className="space-y-4">
               <div>
@@ -498,7 +498,7 @@ const TierManagement: React.FC = () => {
                 <select 
                   value={formData.tier}
                   onChange={(e) => setFormData({ ...formData, tier: e.target.value as 'T1' | 'T2' | 'T3' | '' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 >
                   <option value="">Select Tier</option>
                   <option value="T1">T1</option>
@@ -542,7 +542,7 @@ const TierManagement: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, benefits: e.target.value.split(',').map(b => b.trim()).filter(b => b) })}
                   placeholder="Fast shipping, Priority support, etc."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 />
               </div>
               <div>
@@ -550,7 +550,7 @@ const TierManagement: React.FC = () => {
                 <select 
                   value={formData.isActive ? 'active' : 'inactive'} 
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'active' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -579,7 +579,7 @@ const TierManagement: React.FC = () => {
       {/* Edit Tier Modal */}
       {isEditDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full m-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full m-4">
             <h2 className="text-xl font-bold mb-4">Edit Tier</h2>
             <div className="space-y-4">
               <div>
@@ -587,7 +587,7 @@ const TierManagement: React.FC = () => {
                 <select 
                   value={formData.tier}
                   onChange={(e) => setFormData({ ...formData, tier: e.target.value as 'T1' | 'T2' | 'T3' | '' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 >
                   <option value="">Select Tier</option>
                   <option value="T1">T1</option>
@@ -631,7 +631,7 @@ const TierManagement: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, benefits: e.target.value.split(',').map(b => b.trim()).filter(b => b) })}
                   placeholder="Fast shipping, Priority support, etc."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 />
               </div>
               <div>
@@ -639,7 +639,7 @@ const TierManagement: React.FC = () => {
                 <select 
                   value={formData.isActive ? 'active' : 'inactive'} 
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'active' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-input rounded-md"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>

@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
+import { useGlobalSettingsWatcher } from '@/hooks/useGlobalSettingsWatcher';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import UsersManagement from '@/pages/users/UsersManagement';
@@ -14,6 +15,7 @@ import PermissionManagement from '@/pages/admin/PermissionManagement';
 import TierManagement from '@/pages/admin/TierManagement';
 import { SecurityPage } from '@/pages/Security';
 import Settings from '@/pages/Settings';
+// import SettingsTest from '@/pages/SettingsTest';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,9 +51,22 @@ function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
   return <DashboardLayout>{children}</DashboardLayout>;
 }
 
+// Component to initialize global settings watcher
+function AppInitializer() {
+  const { isAuthenticated } = useAuthStore();
+  
+  // Only initialize settings watcher when user is authenticated
+  if (isAuthenticated) {
+    useGlobalSettingsWatcher();
+  }
+  
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <AppInitializer />
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -137,6 +152,14 @@ function App() {
           />
           <Route
             path="/settings"
+            element={
+              <AdminProtectedRoute>
+                <Settings />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings-test"
             element={
               <AdminProtectedRoute>
                 <Settings />

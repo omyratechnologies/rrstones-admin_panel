@@ -13,19 +13,19 @@ import { orderApi } from '@/services/businessApi';
 import type { Order } from '@/types';
 
 const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-purple-100 text-purple-800',
+  pending: 'bg-warning-light text-warning',
+  confirmed: 'bg-primary-light text-primary',
+  processing: 'bg-info-light text-purple-800',
   shipped: 'bg-indigo-100 text-indigo-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+  delivered: 'bg-success-light text-success',
+  cancelled: 'bg-error-light text-error',
 };
 
 const paymentStatusColors = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  paid: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  refunded: 'bg-gray-100 text-gray-800',
+  pending: 'bg-warning-light text-warning',
+  paid: 'bg-success-light text-success',
+  failed: 'bg-error-light text-error',
+  refunded: 'bg-muted text-foreground',
 };
 
 export function OrderManagement() {
@@ -98,7 +98,7 @@ export function OrderManagement() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search orders by ID or status..."
                 value={searchTerm}
@@ -109,7 +109,7 @@ export function OrderManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -139,11 +139,11 @@ export function OrderManagement() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <Card key={i} className="animate-pulse">
                   <CardHeader>
-                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-3 bg-muted rounded w-1/6"></div>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-20 bg-gray-200 rounded"></div>
+                    <div className="h-20 bg-muted rounded"></div>
                   </CardContent>
                 </Card>
               ))}
@@ -208,7 +208,7 @@ export function OrderManagement() {
                             </p>
                           ))}
                           {order.items.length > 2 && (
-                            <p className="text-blue-600">+{order.items.length - 2} more items</p>
+                            <p className="text-primary">+{order.items.length - 2} more items</p>
                           )}
                         </div>
                       </div>
@@ -303,7 +303,7 @@ export function OrderManagement() {
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Pending Orders</CardDescription>
-                <CardTitle className="text-2xl text-yellow-600">
+                <CardTitle className="text-2xl text-warning">
                   {orders.filter((o: Order) => o.status === 'pending').length}
                 </CardTitle>
               </CardHeader>
@@ -311,7 +311,7 @@ export function OrderManagement() {
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Delivered Orders</CardDescription>
-                <CardTitle className="text-2xl text-green-600">
+                <CardTitle className="text-2xl text-success">
                   {orders.filter((o: Order) => o.status === 'delivered').length}
                 </CardTitle>
               </CardHeader>
@@ -319,7 +319,7 @@ export function OrderManagement() {
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Total Revenue</CardDescription>
-                <CardTitle className="text-2xl text-blue-600">
+                <CardTitle className="text-2xl text-primary">
                   ₹{orders.reduce((sum: number, o: Order) => sum + o.finalAmount, 0).toLocaleString()}
                 </CardTitle>
               </CardHeader>
@@ -333,7 +333,7 @@ export function OrderManagement() {
               <CardDescription>Monthly revenue and order trends</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded">
+              <div className="h-64 flex items-center justify-center border-2 border-dashed border-input rounded">
                 <p className="text-muted-foreground">Revenue charts coming soon</p>
               </div>
             </CardContent>

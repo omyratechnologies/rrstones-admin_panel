@@ -99,7 +99,7 @@ export const settingsApi = {
           } else {
             // Parse CSV
             const lines = content.split('\n').filter(line => line.trim());
-            const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+            lines[0].split(',').map(h => h.replace(/"/g, '')); // headers for structure
             settings = lines.slice(1).map(line => {
               const values = line.split(',').map(v => v.replace(/"/g, ''));
               return {

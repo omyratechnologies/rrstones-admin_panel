@@ -132,9 +132,9 @@ export function FormModal({
 
     return (
       <div key={field.name} className="space-y-2">
-        <Label htmlFor={fieldId} className="text-sm font-medium text-gray-700">
+        <Label htmlFor={fieldId} className="text-sm font-medium text-foreground">
           {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
+          {field.required && <span className="text-error ml-1">*</span>}
         </Label>
 
         {field.type === 'textarea' ? (
@@ -144,15 +144,15 @@ export function FormModal({
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             rows={field.rows || 3}
-            className={hasError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
+            className={hasError ? 'border-error focus:border-error focus:ring-error' : ''}
           />
         ) : field.type === 'select' ? (
           <select
             id={fieldId}
             value={formData[field.name] || ''}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
-              hasError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+            className={`w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary ${
+              hasError ? 'border-error focus:border-error focus:ring-error' : ''
             }`}
           >
             <option value="">{field.placeholder || `Select ${field.label}`}</option>
@@ -164,7 +164,7 @@ export function FormModal({
           </select>
         ) : field.type === 'multiselect' ? (
           <div className="space-y-2">
-            <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
+            <div className="max-h-40 overflow-y-auto border border-border rounded-md p-2">
               {field.options?.map(option => (
                 <label key={option.value} className="flex items-center space-x-2 py-1">
                   <input
@@ -177,14 +177,14 @@ export function FormModal({
                         : currentValues.filter((v: string) => v !== option.value);
                       handleFieldChange(field.name, newValues);
                     }}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-border text-primary focus:ring-primary"
                   />
                   <span className="text-sm">{option.label}</span>
                 </label>
               ))}
             </div>
             {Array.isArray(formData[field.name]) && formData[field.name].length > 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Selected: {Array.isArray(formData[field.name]) ? formData[field.name].join(', ') : formData[field.name]}
               </div>
             )}
@@ -212,12 +212,12 @@ export function FormModal({
             min={field.min}
             max={field.max}
             step={field.step}
-            className={hasError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
+            className={hasError ? 'border-error focus:border-error focus:ring-error' : ''}
           />
         )}
 
         {hasError && (
-          <p className="text-sm text-red-600">{errors[field.name]}</p>
+          <p className="text-sm text-error">{errors[field.name]}</p>
         )}
       </div>
     );

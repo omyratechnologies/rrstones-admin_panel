@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { analyticsApi, orderApi } from '@/services/businessApi';
 import { BarChart3, TrendingUp, Users, Package, DollarSign, ShoppingCart, RefreshCw, Activity, Clock } from 'lucide-react';
+import { useBusinessSettings } from '@/hooks/useBusinessSettings';
 
 export function Dashboard() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const { companyName } = useBusinessSettings();
 
   // Dashboard analytics with auto-refresh
   const { data: dashboardData, isLoading, refetch } = useQuery({
@@ -56,9 +58,9 @@ export function Dashboard() {
   };
 
   const getGrowthColor = (growth: number) => {
-    if (growth > 0) return 'text-green-600';
-    if (growth < 0) return 'text-red-600';
-    return 'text-gray-600';
+    if (growth > 0) return 'text-success';
+    if (growth < 0) return 'text-error';
+    return 'text-muted-foreground';
   };
 
   const getGrowthIcon = (growth: number) => {
@@ -73,7 +75,7 @@ export function Dashboard() {
       value: analytics.summary.users.current?.toLocaleString() || '0',
       description: 'Registered customers',
       icon: Users,
-      color: 'text-blue-600',
+      color: 'text-primary',
       growth: analytics.summary.users.growth || 0,
     },
     {
@@ -81,7 +83,7 @@ export function Dashboard() {
       value: analytics.summary.orders.current?.toLocaleString() || '0',
       description: 'All time orders',
       icon: ShoppingCart,
-      color: 'text-green-600',
+      color: 'text-success',
       growth: analytics.summary.orders.growth || 0,
     },
     {
@@ -97,7 +99,7 @@ export function Dashboard() {
       value: pendingOrdersCount.toLocaleString(),
       description: 'Awaiting processing',
       icon: Package,
-      color: 'text-orange-600',
+      color: 'text-warning',
       growth: 0, // Pending orders don't have growth
     },
   ];
@@ -108,7 +110,7 @@ export function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome to your RRStones admin dashboard
+            Welcome to your {companyName} admin dashboard
           </p>
         </div>
         
@@ -137,12 +139,12 @@ export function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome to your RRStones admin dashboard
+            Welcome to your {companyName} admin dashboard
           </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
             <div className="text-sm text-muted-foreground">
               Live updates every 30s
             </div>
@@ -278,10 +280,10 @@ export function Dashboard() {
                     <div key={status} className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <div className={`h-3 w-3 rounded-full ${
-                          status === 'completed' ? 'bg-green-500' :
-                          status === 'pending' ? 'bg-yellow-500' :
-                          status === 'processing' ? 'bg-blue-500' :
-                          status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
+                          status === 'completed' ? 'bg-success' :
+                          status === 'pending' ? 'bg-warning' :
+                          status === 'processing' ? 'bg-primary' :
+                          status === 'cancelled' ? 'bg-error' : 'bg-gray-500'
                         }`} />
                         <span className="capitalize">{status}</span>
                       </div>

@@ -44,8 +44,27 @@ export const orderApi = {
     return apiService.get(`/orders/${id}`);
   },
 
-  createOrder: async (orderData: any): Promise<ApiResponse<Order>> => {
+  // Create order using new business logic
+  createOrder: async (orderData: {
+    shippingAddress: any;
+    notes?: string;
+    deliveryMethod?: 'delivery' | 'pickup';
+    useExactWeight?: boolean;
+  }): Promise<ApiResponse<{
+    order: Order;
+    invoice: any;
+  }>> => {
     return apiService.post('/orders', orderData);
+  },
+
+  // Create legacy order (for backward compatibility)
+  createLegacyOrder: async (orderData: any): Promise<ApiResponse<Order>> => {
+    return apiService.post('/orders/legacy', orderData);
+  },
+
+  // Start checkout process
+  checkoutCart: async (cartId: string): Promise<ApiResponse<any>> => {
+    return apiService.post('/orders/checkout', { cartId });
   },
 
   updateOrderStatus: async (id: string, status: string): Promise<ApiResponse<Order>> => {
